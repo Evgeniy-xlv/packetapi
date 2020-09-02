@@ -1,0 +1,62 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+
+version = '1.0.0'
+group = 'ru.xlv'
+archivesBaseName = 'packetapi'
+
+sourceCompatibility = targetCompatibility =  '1.8'
+compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
+
+sourceSets.main {
+    java.srcDir 'src'
+    resources.srcDir 'resources'
+}
+
+repositories {
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
+    compileOnly group: 'org.bukkit', name: 'bukkit', version: '1.12.2-R0.1-SNAPSHOT'
+}
+
+minecraft {
+    mappings channel: 'snapshot', version: '20171003-1.12'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+        server {
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+                'Name': 'PacketAPI',
+                'Description': 'API for convenient work with network in minecraft.',
+                'Version': '1.0.0',
+                'Author': 'Xlv',
+        )
+    }
+    exclude 'ru/xlv/packetapi/example'
+    exclude 'plugin.yml'
+}
