@@ -3,7 +3,7 @@ package ru.xlv.packetapi.client;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import net.minecraft.client.Minecraft;
+import ru.xlv.packetapi.capability.PacketAPI;
 import ru.xlv.packetapi.client.packet.IPacketCallbackEffective;
 import ru.xlv.packetapi.common.PacketHandler;
 import ru.xlv.packetapi.common.PacketRegistry;
@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class PacketHandlerClient extends PacketHandler {
+public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
 
     private final long defaultCheckResultPeriod;
     private final long callbackResultWaitTimeout;
@@ -28,11 +28,11 @@ public class PacketHandlerClient extends PacketHandler {
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-    public PacketHandlerClient(PacketRegistry packetRegistry, String channelName) {
+    public PacketHandlerClientRaw(PacketRegistry packetRegistry, String channelName) {
         this(packetRegistry, channelName, 2000L, 0L);
     }
 
-    public PacketHandlerClient(PacketRegistry packetRegistry, String channelName, long callbackResultWaitTimeout, long defaultCheckResultPeriod) {
+    public PacketHandlerClientRaw(PacketRegistry packetRegistry, String channelName, long callbackResultWaitTimeout, long defaultCheckResultPeriod) {
         super(packetRegistry, channelName);
         this.defaultCheckResultPeriod = defaultCheckResultPeriod;
         this.callbackResultWaitTimeout = callbackResultWaitTimeout;
@@ -43,7 +43,7 @@ public class PacketHandlerClient extends PacketHandler {
         int pid = bbis.readInt();
         IPacket packet = getPacketById(pid);
         if (packet != null) {
-            Minecraft.getMinecraft().addScheduledTask(() -> {
+            PacketAPI.INSTANCE.getCapabilityAdapter().scheduleTaskSync(() -> {
                 try {
                     if (packet instanceof IPacketCallback) {
                         processPacketCallbackOnClient(bbis);

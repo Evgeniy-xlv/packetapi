@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 import ru.xlv.packetapi.common.packet.IPacketCallback;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 import ru.xlv.packetapi.server.packet.PacketCallbackSender;
-import ru.xlv.packetapi.server.packet.forge.IPacketCallbackOnServer;
 
 import java.io.IOException;
 
@@ -40,13 +39,13 @@ public interface IPacketCallbackOnBukkit extends IPacketCallback {
 
     /**
      * Здесь следует производить чтение данных и их обработку.
-     * @param packetCallbackSender использовать только если {@link IPacketCallbackOnServer#handleCallback()} == true, иначе будет отослано два пакета.
+     * @param packetCallbackSender использовать только если {@link IPacketCallbackOnBukkit#handleCallback()} == true, иначе будет отослано два пакета.
      * */
     void read(Player player, ByteBufInputStream bbis, PacketCallbackSender packetCallbackSender) throws IOException;
 
     /**
      * Здесь следует производить конструкцию ответа и его записи в буфер. Будет вызван только в случае, если не возникло ошибок
-     * при чтении запроса и у PacketCallbackSender в методе {@link ru.xlv.packetapi.server.packet.bukkit.IPacketCallbackOnBukkit#read(Player, ByteBufInputStream, PacketCallbackSender)}
+     * при чтении запроса и у PacketCallbackSender в методе {@link IPacketCallbackOnBukkit#read(Player, ByteBufInputStream, PacketCallbackSender)}
      * был вызван метод {@link PacketCallbackSender#send()}.
      * <p>
      * Произойти это может только в двух случаях:

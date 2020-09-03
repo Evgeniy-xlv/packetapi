@@ -6,6 +6,7 @@ import ru.xlv.packetapi.common.util.ByteBufInputStream;
 import ru.xlv.packetapi.server.ControllablePacket;
 import ru.xlv.packetapi.server.packet.PacketCallbackSender;
 import ru.xlv.packetapi.server.packet.forge.IPacketCallbackOnServer;
+import ru.xlv.packetapi.server.packet.forge.IPacketCallbackOnServerRaw;
 
 import java.io.IOException;
 
@@ -16,7 +17,7 @@ public class MyTestCallbackOnServer implements IPacketCallbackOnServer {
 
     @Override
     public void read(EntityPlayerMP entityPlayer, ByteBufInputStream bbis, PacketCallbackSender packetCallbackSender) throws IOException {
-        System.out.println("Входящий запрос от " + entityPlayer.getName());
+        System.out.println("Входящий запрос от " + entityPlayer.getCommandSenderName());
         value = bbis.readInt();
     }
 

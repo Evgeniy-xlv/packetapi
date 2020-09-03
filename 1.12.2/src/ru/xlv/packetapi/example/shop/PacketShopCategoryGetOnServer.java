@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBufOutputStream;
 import net.minecraft.entity.player.EntityPlayerMP;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 import ru.xlv.packetapi.server.RequestController;
-import ru.xlv.packetapi.server.packet.forge.IPacketCallbackOnServer;
 import ru.xlv.packetapi.server.packet.PacketCallbackSender;
+import ru.xlv.packetapi.server.packet.forge.IPacketCallbackOnServer;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,7 +34,7 @@ public class PacketShopCategoryGetOnServer implements IPacketCallbackOnServer {
     @Override
     public void write(EntityPlayerMP entityPlayer, ByteBufOutputStream bbos) throws IOException {
         writeObjects(bbos, shopItems);
-        bbos.writeUTF("Обработка запроса заняла " + period + " сек.");
+        bbos.writeUTF("Обработка запроса заняла " + period + " миллисекунд");
     }
 
     @Override

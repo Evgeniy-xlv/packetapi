@@ -1,0 +1,70 @@
+package ru.xlv.packetapi.example.shop;
+
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.InputEvent;
+import cpw.mods.fml.relauncher.Side;
+import org.lwjgl.input.Keyboard;
+import ru.xlv.packetapi.client.PacketHandlerClient;
+import ru.xlv.packetapi.common.PacketRegistry;
+import ru.xlv.packetapi.server.PacketHandlerServer;
+
+import java.util.Random;
+
+import static ru.xlv.packetapi.example.shop.ShopMod.MODID;
+
+@Mod(
+        modid = MODID
+)
+public class ShopMod {
+
+    static final String MODID = "exampleshopmod";
+
+    @Mod.Instance(MODID)
+    public static ShopMod INSTANCE;
+
+    private final ShopItemManager shopItemManager = new ShopItemManager();
+
+    private PacketHandlerClient packetHandlerClient;
+    private PacketHandlerServer packetHandlerServer;
+
+    @Mod.EventHandler
+    public void event(FMLInitializationEvent event) {
+        PacketRegistry packetRegistry = new PacketRegistry();
+        if(event.getSide() == Side.CLIENT) {
+            packetRegistry.register(MODID, new PacketShopCategoryGet());
+            packetRegistry.applyRegistration();
+            packetHandlerClient = new PacketHandlerClient(packetRegistry, MODID);
+            FMLCommonHandler.instance().bus().register(this);
+        } else {
+            packetRegistry.register(MODID, new PacketShopCategoryGetOnServer());
+            packetRegistry.applyRegistration();
+            packetHandlerServer = new PacketHandlerServer(packetRegistry, MODID);
+        }
+    }
+
+    @SubscribeEvent
+    public void event(InputEvent.KeyInputEvent event) {
+        if(Keyboard.getEventKeyState() && Keyboard.isKeyDown(Keyboard.KEY_O)) {
+            String categoryChars = "qweasdzxcrtyfghvbbnuiojklmp";
+            Random random = new Random();
+            StringBuilder category = new StringBuilder();
+            for (int i = 0; i < 8; i++) {
+                category.append(categoryChars.charAt(random.nextInt(categoryChars.length())));
+            }
+            System.out.println("Отправляю запрос товаров магазина по категории: " + category.toString());
+            packetHandlerClient.sendPacketEffectiveCallback(new PacketShopCategoryGet(category.toString()))
+                    .thenAcceptSync(result -> {
+                        System.out.println("Пришедший список товаров из магазина:");
+                        result.getShopItemList().forEach(System.out::println);
+                        System.out.println("Сообщение от сервера: " + result.getResponseMessage());
+                    });
+        }
+    }
+
+    public ShopItemManager getShopItemManager() {
+        return this.shopItemManager;
+    }
+}

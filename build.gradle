@@ -1,19 +1,7 @@
-buildscript {
-    repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
-    }
-}
+apply plugin: 'java'
 
-apply plugin: 'net.minecraftforge.gradle'
-
-version = '1.0.0'
 group = 'ru.xlv'
-archivesBaseName = 'packetapi'
+archivesBaseName = "packetapi-${gameVersion}-${libVersion}"
 
 sourceCompatibility = targetCompatibility =  '1.8'
 compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
@@ -24,27 +12,16 @@ sourceSets.main {
 }
 
 repositories {
+    mavenCentral()
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
+    compile group: 'net.sf.trove4j', name: 'trove4j', version: '3.0.3'
+    compile group: 'io.netty', name: 'netty-all', version: '4.0.10.Final'
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '1.3.9'
+    compile group: 'com.google.guava', name: 'guava', version: '17.0'
     compileOnly group: 'org.bukkit', name: 'bukkit', version: '1.12.2-R0.1-SNAPSHOT'
-}
-
-minecraft {
-    mappings channel: 'snapshot', version: '20171003-1.12'
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-        server {
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-    }
 }
 
 jar {
@@ -52,10 +29,11 @@ jar {
         attributes(
                 'Name': 'PacketAPI',
                 'Description': 'API for convenient work with network in minecraft.',
-                'Version': '1.0.0',
+                'Version': libVersion,
+                'PacketAPI_GameVersion': gameVersion,
                 'Author': 'Xlv',
         )
     }
-    exclude 'ru/xlv/packetapi/example'
-    exclude 'plugin.yml'
+//    exclude 'ru/xlv/packetapi/example'
+//    exclude 'plugin.yml'
 }

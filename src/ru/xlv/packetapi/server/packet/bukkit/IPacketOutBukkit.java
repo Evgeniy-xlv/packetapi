@@ -17,7 +17,7 @@ public interface IPacketOutBukkit extends IPacketOut {
     void write(Player player, ByteBufOutputStream bbos) throws IOException;
 
     /**
-     * Метод не вызывается для пакетов этого типа, используйте {@link ru.xlv.packetapi.server.packet.bukkit.IPacketOutBukkit#write(Player, ByteBufOutputStream)}
+     * Метод не вызывается для пакетов этого типа, используйте {@link IPacketOutBukkit#write(Player, ByteBufOutputStream)}
      * */
     @Deprecated
     @Override

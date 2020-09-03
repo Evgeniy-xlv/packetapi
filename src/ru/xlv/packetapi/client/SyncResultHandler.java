@@ -1,13 +1,14 @@
 package ru.xlv.packetapi.client;
 
-import net.minecraft.client.Minecraft;
+import ru.xlv.packetapi.capability.PacketAPI;
+import ru.xlv.packetapi.client.packet.IPacketCallbackEffective;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
- * Используется в паре с {@link ru.xlv.packetapi.client.packet.IPacketCallbackEffective} и служит для возможности его обработки в синхронном порядке.
+ * Используется в паре с {@link IPacketCallbackEffective} и служит для возможности его обработки в синхронном порядке.
  * <p>
  * Прим. использования:
  * <pre>
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
  * */
 public class SyncResultHandler<T> {
 
-    private static final Consumer<Runnable> mainThreadExecutor = Minecraft.getMinecraft()::addScheduledTask;
+    private static final Consumer<Runnable> mainThreadExecutor = PacketAPI.INSTANCE.getCapabilityAdapter()::scheduleTaskSync;
     private final CompletableFuture<T> completableFuture;
     private final boolean checkNonNullResult;
 
@@ -33,7 +34,7 @@ public class SyncResultHandler<T> {
     /**
      * Позволяет обработать асинхронный результат в основном потоке.
      * <p>
-     * Будет вызван сразу же после того, как выполнится {@link ru.xlv.packetapi.client.packet.IPacketCallbackEffective#read(ByteBufInputStream)}
+     * Будет вызван сразу же после того, как выполнится {@link IPacketCallbackEffective#read(ByteBufInputStream)}
      * */
     public void thenAcceptSync(Consumer<T> consumer) {
         completableFuture.thenAccept(result -> {

@@ -1,14 +1,16 @@
 package ru.xlv.packetapi.common.packet;
 
 import io.netty.buffer.ByteBufOutputStream;
-import io.netty.buffer.Unpooled;
 import ru.xlv.flex.thr.ThrBiConsumer;
 import ru.xlv.flex.thr.ThrCallable;
 import ru.xlv.flex.thr.ThrFunction;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
 import javax.annotation.Nonnull;
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.*;
 
 public interface IPacket {
@@ -94,7 +96,7 @@ public interface IPacket {
     }
 
     /**
-     * Позволяет записать все {@link Serializable} из входящего массива {@link Serializable]} в буфер в качестве {@link ArrayList}.
+     * Позволяет записать все {@link Serializable} из входящего массива {@link Serializable} в буфер в качестве {@link ArrayList}.
      * */
     default void writeObjects(@Nonnull ByteBufOutputStream byteBufOutputStream, @Nonnull Serializable... serializables) throws IOException {
         writeObject(byteBufOutputStream, (ArrayList<Serializable>) Arrays.asList(serializables));
@@ -142,12 +144,8 @@ public interface IPacket {
         } else if(serializable instanceof byte[]) {
             byteBufOutputStream.writeBytes(new String((byte[]) serializable));
         } else {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteBufOutputStream);
             objectOutputStream.writeObject(serializable);
-            objectOutputStream.flush();
-            byteBufOutputStream.write(byteArrayOutputStream.toByteArray());
-            objectOutputStream.close();
         }
     }
 
@@ -180,8 +178,7 @@ public interface IPacket {
             return (T) byteBufInputStream.readUTF().getBytes();
         } else {
             try {
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(Unpooled.copiedBuffer(byteBufInputStream.getBuffer()).array());
-                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+                ObjectInputStream objectInputStream = new ObjectInputStream(byteBufInputStream);
                 return (T) objectInputStream.readObject();
             } catch (ClassNotFoundException e) {
                 throw new IOException(e);

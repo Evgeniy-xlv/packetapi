@@ -1,7 +1,6 @@
 package ru.xlv.packetapi.server.packet.forge;
 
 import io.netty.buffer.ByteBufOutputStream;
-import net.minecraft.entity.player.EntityPlayerMP;
 import ru.xlv.packetapi.common.packet.IPacketCallback;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 import ru.xlv.packetapi.server.packet.PacketCallbackSender;
@@ -15,7 +14,7 @@ import java.io.IOException;
  *
  * Прим. использования:
  * <pre>
- * public class MyCallbackOnServer implements IPacketCallbackOnServer {
+ * public class MyCallbackOnServer implements IPacketCallbackOnServerRaw {
  *
  *    private int inputValue;
  *
@@ -35,17 +34,17 @@ import java.io.IOException;
  * }
  * <pre>
  * */
-public interface IPacketCallbackOnServer extends IPacketCallback {
+public interface IPacketCallbackOnServerRaw<PLAYER> extends IPacketCallback {
 
     /**
      * Здесь следует производить чтение данных и их обработку.
-     * @param packetCallbackSender использовать только если {@link IPacketCallbackOnServer#handleCallback()} == true, иначе будет отослано два пакета.
+     * @param packetCallbackSender использовать только если {@link IPacketCallbackOnServerRaw#handleCallback()} == true, иначе будет отослано два пакета.
      * */
-    void read(EntityPlayerMP entityPlayer, ByteBufInputStream bbis, PacketCallbackSender packetCallbackSender) throws IOException;
+    void read(PLAYER entityPlayer, ByteBufInputStream bbis, PacketCallbackSender packetCallbackSender) throws IOException;
 
     /**
      * Здесь следует производить конструкцию ответа и его записи в буфер. Будет вызван только в случае, если не возникло ошибок
-     * при чтении запроса и у PacketCallbackSender в методе {@link IPacketCallbackOnServer#read(EntityPlayerMP, ByteBufInputStream, PacketCallbackSender)}
+     * при чтении запроса и у PacketCallbackSender в методе {@link IPacketCallbackOnServerRaw#read(PLAYER, ByteBufInputStream, PacketCallbackSender)}
      * был вызван метод {@link PacketCallbackSender#send()}.
      * <p>
      * Произойти это может только в двух случаях:
@@ -54,7 +53,7 @@ public interface IPacketCallbackOnServer extends IPacketCallback {
      * <p>
      *  2. Управление было взято программистом, который вручную вызвал метод {@link PacketCallbackSender#send()} в методе read.
      * */
-    void write(EntityPlayerMP entityPlayer, ByteBufOutputStream bbos) throws IOException;
+    void write(PLAYER entityPlayer, ByteBufOutputStream bbos) throws IOException;
 
     @Deprecated
     @Override

@@ -22,6 +22,7 @@ import javax.annotation.WillClose;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -29,7 +30,7 @@ import java.util.stream.Stream;
 
 public class PacketHandlerBukkitServer implements IPacketHandlerServer<Player, IPacketOutBukkit> {
 
-    private final Map<Class<? extends IPacket>, PacketHandlerBukkitServer.PacketData> packetMap = new HashMap<>();
+    private final Map<Class<? extends IPacket>, PacketData> packetMap = new HashMap<>();
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
@@ -43,29 +44,7 @@ public class PacketHandlerBukkitServer implements IPacketHandlerServer<Player, I
         this.channelName = channelName;
         this.packetRegistry = packetRegistry;
         this.logger = Logger.getLogger(this.getClass().getSimpleName() + ":" + channelName);
-        for (Class<? extends IPacket> aClass : packetRegistry.getClassRegistry().keySet()) {
-            PacketHandlerBukkitServer.PacketData packetData = new PacketHandlerBukkitServer.PacketData();
-            {
-                AsyncPacket annotation = aClass.getAnnotation(AsyncPacket.class);
-                if (annotation != null) {
-                    packetData.isAsync = true;
-                }
-            }
-            {
-                ControllablePacket annotation = aClass.getAnnotation(ControllablePacket.class);
-                if (annotation != null) {
-                    packetData.callWriteAnyway = annotation.callWriteAnyway();
-                    packetData.requestLimit = annotation.limit();
-                    packetData.requestPeriod = annotation.period();
-                }
-            }
-            if(packetData.requestPeriod != -1) {
-                packetData.requestController = new RequestController.Periodic<>(packetData.requestPeriod);
-            } else if(packetData.requestLimit != -1) {
-                packetData.requestController = new RequestController.Limited<>(packetData.requestLimit);
-            }
-            packetMap.put(aClass, packetData);
-        }
+        scanAnnotations(packetRegistry, packetMap);
         Bukkit.getMessenger().registerIncomingPluginChannel(javaPlugin, channelName, (channel, player, message) -> {
             try {
                 onServerPacketReceived(player, new ByteBufInputStream(Unpooled.wrappedBuffer(message)));
@@ -80,7 +59,7 @@ public class PacketHandlerBukkitServer implements IPacketHandlerServer<Player, I
         int pid = bbis.readInt();
         IPacket packet = getPacketById(pid);
         if (packet != null) {
-            PacketHandlerBukkitServer.PacketData packetData = packetMap.get(packet.getClass());
+            PacketData packetData = packetMap.get(packet.getClass());
             if(packetData != null && packetData.isAsync) {
                 executorService.submit(() -> handlePacket(packet, packetData, pid, player, bbis));
             } else {
@@ -91,8 +70,8 @@ public class PacketHandlerBukkitServer implements IPacketHandlerServer<Player, I
 
     private void handlePacket(IPacket packet, PacketData packetData, int pid, Player player, ByteBufInputStream byteBufInputStream) {
         if(packetData != null) {
-            RequestController<String> requestController = packetData.requestController;
-            if (requestController != null && !requestController.tryRequest(player.getName())) {
+            RequestController<UUID> requestController = packetData.requestController;
+            if (requestController != null && !requestController.tryRequest(player.getUniqueId())) {
                 return;
             }
         }
@@ -220,13 +199,5 @@ public class PacketHandlerBukkitServer implements IPacketHandlerServer<Player, I
 
     public String getChannelName() {
         return this.channelName;
-    }
-
-    private static class PacketData {
-        private RequestController<String> requestController;
-        private boolean isAsync;
-        private long requestPeriod;
-        private int requestLimit;
-        private boolean callWriteAnyway;
     }
 }
