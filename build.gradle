@@ -29,7 +29,6 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
     compileOnly group: 'org.bukkit', name: 'bukkit', version: '1.12.2-R0.1-SNAPSHOT'
 }
 

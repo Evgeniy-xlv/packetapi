@@ -2,8 +2,6 @@ package ru.xlv.packetapi.common;
 
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import lombok.Getter;
-import lombok.SneakyThrows;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -23,7 +21,6 @@ import javax.annotation.WillClose;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-@Getter
 public abstract class PacketHandler implements IPacketHandler {
 
     protected final Logger logger;
@@ -44,37 +41,48 @@ public abstract class PacketHandler implements IPacketHandler {
     }
 
     @SuppressWarnings("unused")
-    @SneakyThrows
     @SubscribeEvent
     public void onClientPacketReceived(FMLNetworkEvent.ClientCustomPacketEvent event) {
-        if(event.getPacket().channel().equals(getChannelName())) {
+        if (event.getPacket().channel().equals(getChannelName())) {
             ByteBufInputStream byteBufInputStream = new ByteBufInputStream(event.getPacket().payload());
-            onClientPacketReceived(byteBufInputStream);
-            byteBufInputStream.close();
+            try {
+                onClientPacketReceived(byteBufInputStream);
+                byteBufInputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @SuppressWarnings("unused")
-    @SneakyThrows
     @SubscribeEvent
     public void onServerPacketReceived(FMLNetworkEvent.ServerCustomPacketEvent event) {
-        if(event.getPacket().channel().equals(getChannelName())) {
+        if (event.getPacket().channel().equals(getChannelName())) {
             ByteBufInputStream byteBufInputStream = new ByteBufInputStream(event.getPacket().payload());
-            onServerPacketReceived(((NetHandlerPlayServer) event.getHandler()).player, byteBufInputStream);
-            byteBufInputStream.close();
+            try {
+                onServerPacketReceived(((NetHandlerPlayServer) event.getHandler()).player, byteBufInputStream);
+                byteBufInputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    protected void onClientPacketReceived(ByteBufInputStream bbis) throws IOException {}
+    protected void onClientPacketReceived(ByteBufInputStream bbis) throws IOException {
+    }
 
-    protected void onServerPacketReceived(EntityPlayerMP entityPlayer, ByteBufInputStream bbis) throws IOException {}
+    protected void onServerPacketReceived(EntityPlayerMP entityPlayer, ByteBufInputStream bbis) throws IOException {
+    }
 
-    @SneakyThrows
     public void sendPacketToServer(@Nonnull IPacketOut packet) {
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
-        byteBufOutputStream.writeInt(getPacketId(packet));
-        packet.write(byteBufOutputStream);
-        sendPacketToServer(byteBufOutputStream);
+        try {
+            byteBufOutputStream.writeInt(getPacketId(packet));
+            packet.write(byteBufOutputStream);
+            sendPacketToServer(byteBufOutputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendPacketToServer(@Nonnull @WillClose ByteBufOutputStream bbos) throws IOException {
@@ -83,25 +91,44 @@ public abstract class PacketHandler implements IPacketHandler {
         bbos.close();
     }
 
-    @SneakyThrows
     public void sendPacketToPlayer(@Nullable EntityPlayer entityPlayer, @Nonnull IPacketOut packet) {
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
-        byteBufOutputStream.writeInt(getPacketId(packet));
-        packet.write(byteBufOutputStream);
-        sendPacketToPlayer(entityPlayer, byteBufOutputStream);
+        try {
+            byteBufOutputStream.writeInt(getPacketId(packet));
+            packet.write(byteBufOutputStream);
+            sendPacketToPlayer(entityPlayer, byteBufOutputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendPacketToPlayer(@Nullable EntityPlayer entityPlayer, @Nonnull @WillClose ByteBufOutputStream bbos) throws IOException {
-        if(entityPlayer == null) {
+        if (entityPlayer == null) {
             getLogger().warning("Unable to send a packet to null player!");
             return;
         }
-        if(!(entityPlayer instanceof EntityPlayerMP)) {
+        if (!(entityPlayer instanceof EntityPlayerMP)) {
             getLogger().warning("Unable to send a packet! The player must be an EntityPlayerMP!");
             return;
         }
         FMLProxyPacket proxyPacket = new FMLProxyPacket(new PacketBuffer(bbos.buffer()), getChannelName());
         getChannel().sendTo(proxyPacket, (EntityPlayerMP) entityPlayer);
         bbos.close();
+    }
+
+    public Logger getLogger() {
+        return this.logger;
+    }
+
+    public FMLEventChannel getChannel() {
+        return this.channel;
+    }
+
+    public PacketRegistry getPacketRegistry() {
+        return this.packetRegistry;
+    }
+
+    public String getChannelName() {
+        return this.channelName;
     }
 }

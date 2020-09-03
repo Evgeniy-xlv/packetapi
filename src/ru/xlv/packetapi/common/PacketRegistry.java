@@ -5,13 +5,12 @@ import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import ru.xlv.packetapi.common.packet.IPacket;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Служит для удобной регистрации пакетов в рамках апи.
@@ -19,13 +18,17 @@ import java.util.List;
  * Данный регистр не берет на вход идентификатор пакета, а присваевает его сам, в зависимости от очередности добавления этого пакета в регистр.
  * Перед присвоением идентификаторов пакетам, они будут отсортированы в зависимости от modid, под эгидой которого они были добавлены в регистр.
  * */
-@Log
 public class PacketRegistry {
 
-    @RequiredArgsConstructor
+    private static final Logger log = Logger.getLogger(PacketRegistry.class.getName());
+
     private static class RegisterElement implements Comparable<RegisterElement> {
         private final String modid;
         private final List<IPacket> packets = new ArrayList<>();
+
+        public RegisterElement(String modid) {
+            this.modid = modid;
+        }
 
         @Override
         public int compareTo(RegisterElement o) {

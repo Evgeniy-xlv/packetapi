@@ -1,7 +1,6 @@
 package ru.xlv.packetapi.example.shop;
 
 import io.netty.buffer.ByteBufOutputStream;
-import lombok.NoArgsConstructor;
 import net.minecraft.entity.player.EntityPlayerMP;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 import ru.xlv.packetapi.server.RequestController;
@@ -12,7 +11,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-@NoArgsConstructor
 public class PacketShopCategoryGetOnServer implements IPacketCallbackOnServer {
 
     private static final RequestController<UUID> REQUEST_CONTROLLER = new RequestController.Periodic<>(1000L);

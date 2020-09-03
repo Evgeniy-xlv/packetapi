@@ -1,23 +1,24 @@
 package ru.xlv.packetapi.example.shop;
 
 import io.netty.buffer.ByteBufOutputStream;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import ru.xlv.packetapi.client.packet.IPacketCallbackEffective;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
 public class PacketShopCategoryGet implements IPacketCallbackEffective<PacketShopCategoryGet.Result> {
 
-    @Getter
     private final Result result = new Result();
 
     private String category;
+
+    public PacketShopCategoryGet() {}
+
+    public PacketShopCategoryGet(String category) {
+        this.category = category;
+    }
 
     @Override
     public void write(ByteBufOutputStream bbos) throws IOException {
@@ -30,9 +31,22 @@ public class PacketShopCategoryGet implements IPacketCallbackEffective<PacketSho
         result.responseMessage = bbis.readUTF();
     }
 
-    @Getter
+    @Nullable
+    @Override
+    public Result getResult() {
+        return result;
+    }
+
     public static class Result {
         private String responseMessage;
         private List<ShopItem> shopItemList;
+
+        public String getResponseMessage() {
+            return responseMessage;
+        }
+
+        public List<ShopItem> getShopItemList() {
+            return shopItemList;
+        }
     }
 }

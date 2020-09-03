@@ -4,7 +4,8 @@ import io.netty.buffer.ByteBufOutputStream;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 

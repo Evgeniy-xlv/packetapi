@@ -1,6 +1,5 @@
 package ru.xlv.packetapi.example.shop;
 
-import lombok.Getter;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -26,7 +25,6 @@ public class ShopMod {
     @Mod.Instance(MODID)
     public static ShopMod INSTANCE;
 
-    @Getter
     private final ShopItemManager shopItemManager = new ShopItemManager();
 
     private PacketHandlerClient packetHandlerClient;
@@ -64,5 +62,9 @@ public class ShopMod {
                         System.out.println("Сообщение от сервера: " + result.getResponseMessage());
                     });
         }
+    }
+
+    public ShopItemManager getShopItemManager() {
+        return this.shopItemManager;
     }
 }

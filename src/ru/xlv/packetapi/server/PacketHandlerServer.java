@@ -2,7 +2,6 @@ package ru.xlv.packetapi.server;
 
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import lombok.SneakyThrows;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -137,13 +136,16 @@ public class PacketHandlerServer extends PacketHandler implements IPacketHandler
         sendPacketToPlayer(entityPlayer, bbos);
     }
 
-    @SneakyThrows
     @Override
     public void sendPacketToPlayer(EntityPlayer entityPlayer, IPacketOutServer packet) {
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
-        byteBufOutputStream.writeInt(getPacketId(packet));
-        packet.write(entityPlayer, byteBufOutputStream);
-        sendPacketToPlayer(entityPlayer, byteBufOutputStream);
+        try {
+            byteBufOutputStream.writeInt(getPacketId(packet));
+            packet.write(entityPlayer, byteBufOutputStream);
+            sendPacketToPlayer(entityPlayer, byteBufOutputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

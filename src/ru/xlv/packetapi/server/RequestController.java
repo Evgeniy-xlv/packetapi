@@ -1,9 +1,5 @@
 package ru.xlv.packetapi.server;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -120,11 +116,15 @@ public abstract class RequestController<T> {
     /**
      * Данный контроллер позволяет отсекать запросы, если их общее количество в очереди превышает допустимый уровень.
      * */
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Limited<T> extends RequestController<T> {
 
         protected int requestLimit = 1000;
+
+        public Limited() {}
+
+        public Limited(int requestLimit) {
+            this.requestLimit = requestLimit;
+        }
 
         @Override
         protected void updateRequest(Request request, Runnable runnable) {
@@ -165,14 +165,18 @@ public abstract class RequestController<T> {
     /**
      * Данный контроллер позволяет отсекать запросы, если их частота превышает допустимый период.
      * */
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Periodic<T> extends RequestController<T> {
 
         /**
          * Указывается в миллисекундах
          * */
         protected long requestPeriod = 1000L;
+
+        public Periodic() {}
+
+        public Periodic(long requestPeriod) {
+            this.requestPeriod = requestPeriod;
+        }
 
         @Override
         protected void updateRequest(Request request, Runnable runnable) {
@@ -240,9 +244,12 @@ public abstract class RequestController<T> {
         }
     }
 
-    @RequiredArgsConstructor
     private static class Request {
         private long requestTimeMills;
         private final Runnable runnable;
+
+        public Request(Runnable runnable) {
+            this.runnable = runnable;
+        }
     }
 }

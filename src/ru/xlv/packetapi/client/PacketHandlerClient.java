@@ -3,7 +3,6 @@ package ru.xlv.packetapi.client;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import lombok.SneakyThrows;
 import net.minecraft.client.Minecraft;
 import ru.xlv.packetapi.client.packet.IPacketCallbackEffective;
 import ru.xlv.packetapi.common.PacketHandler;
@@ -82,17 +81,20 @@ public class PacketHandlerClient extends PacketHandler {
      *
      * @return callbackId
      * */
-    @SneakyThrows
     public int sendPacketCallback(IPacketCallback packet) {
         int id = genCallbackId();
         synchronized (callbackMap) {
             callbackMap.put(id, packet);
         }
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
-        byteBufOutputStream.writeInt(getPacketId(packet));
-        byteBufOutputStream.writeInt(id);
-        packet.write(byteBufOutputStream);
-        sendPacketToServer(byteBufOutputStream);
+        try {
+            byteBufOutputStream.writeInt(getPacketId(packet));
+            byteBufOutputStream.writeInt(id);
+            packet.write(byteBufOutputStream);
+            sendPacketToServer(byteBufOutputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return id;
     }
 

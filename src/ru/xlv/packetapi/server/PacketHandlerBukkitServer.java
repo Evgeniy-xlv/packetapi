@@ -2,8 +2,6 @@ package ru.xlv.packetapi.server;
 
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import lombok.Getter;
-import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -29,7 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-@Getter
 public class PacketHandlerBukkitServer implements IPacketHandlerServer<Player, IPacketOutBukkit> {
 
     private final Map<Class<? extends IPacket>, PacketHandlerBukkitServer.PacketData> packetMap = new HashMap<>();
@@ -152,7 +149,7 @@ public class PacketHandlerBukkitServer implements IPacketHandlerServer<Player, I
 
     public void sendPacketToPlayer(@Nullable Player player, @Nonnull @WillClose ByteBufOutputStream bbos) throws IOException {
         if(player == null) {
-            getLogger().warning("Unable to send a packet to null player!");
+            logger.warning("Unable to send a packet to null player!");
             return;
         }
         bbos.flush();
@@ -160,13 +157,16 @@ public class PacketHandlerBukkitServer implements IPacketHandlerServer<Player, I
         bbos.close();
     }
 
-    @SneakyThrows
     @Override
     public void sendPacketToPlayer(Player player, IPacketOutBukkit packet) {
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
-        byteBufOutputStream.writeInt(getPacketId(packet));
-        packet.write(player, byteBufOutputStream);
-        sendPacketToPlayer(player, byteBufOutputStream);
+        try {
+            byteBufOutputStream.writeInt(getPacketId(packet));
+            packet.write(player, byteBufOutputStream);
+            sendPacketToPlayer(player, byteBufOutputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -208,6 +208,18 @@ public class PacketHandlerBukkitServer implements IPacketHandlerServer<Player, I
     @Override
     public Stream<? extends Player> getOnlinePlayers() {
         return Bukkit.getOnlinePlayers().stream();
+    }
+
+    public Map<Class<? extends IPacket>, PacketData> getPacketMap() {
+        return this.packetMap;
+    }
+
+    public PacketRegistry getPacketRegistry() {
+        return this.packetRegistry;
+    }
+
+    public String getChannelName() {
+        return this.channelName;
     }
 
     private static class PacketData {
