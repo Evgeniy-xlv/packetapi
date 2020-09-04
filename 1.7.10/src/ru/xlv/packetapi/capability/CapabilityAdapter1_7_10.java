@@ -49,7 +49,10 @@ public class CapabilityAdapter1_7_10 implements ICapabilityAdapter {
             RUNNABLE_QUEUE = new LinkedList<>();
             FMLCommonHandler.instance().bus().register(this);
         }
-        RUNNABLE_QUEUE.add(runnable);
+        //noinspection SynchronizeOnNonFinalField
+        synchronized (RUNNABLE_QUEUE) {
+            RUNNABLE_QUEUE.add(runnable);
+        }
     }
 
     @Override
