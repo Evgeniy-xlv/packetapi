@@ -3,7 +3,7 @@ package ru.xlv.packetapi.client;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import ru.xlv.packetapi.capability.PacketAPI;
+import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.client.packet.IPacketCallbackEffective;
 import ru.xlv.packetapi.common.PacketHandler;
 import ru.xlv.packetapi.common.PacketRegistry;

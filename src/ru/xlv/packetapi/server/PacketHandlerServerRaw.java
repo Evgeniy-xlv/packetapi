@@ -3,7 +3,7 @@ package ru.xlv.packetapi.server;
 import com.google.common.reflect.TypeToken;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import ru.xlv.packetapi.capability.PacketAPI;
+import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.common.PacketHandler;
 import ru.xlv.packetapi.common.PacketRegistry;
 import ru.xlv.packetapi.common.packet.IPacket;

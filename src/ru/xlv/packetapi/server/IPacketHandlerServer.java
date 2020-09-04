@@ -1,6 +1,6 @@
 package ru.xlv.packetapi.server;
 
-import ru.xlv.packetapi.capability.PacketAPI;
+import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.common.IPacketHandler;
 import ru.xlv.packetapi.common.PacketRegistry;
 import ru.xlv.packetapi.common.packet.IPacket;

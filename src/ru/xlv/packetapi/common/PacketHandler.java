@@ -4,7 +4,7 @@ import com.google.common.reflect.TypeToken;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import ru.xlv.packetapi.capability.AbstractNetworkAdapter;
-import ru.xlv.packetapi.capability.PacketAPI;
+import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.common.packet.IPacketOut;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 

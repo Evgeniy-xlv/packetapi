@@ -1,4 +1,6 @@
-package ru.xlv.packetapi.capability;
+package ru.xlv.packetapi;
+
+import ru.xlv.packetapi.capability.ICapabilityAdapter;
 
 import java.io.IOException;
 import java.io.InputStream;

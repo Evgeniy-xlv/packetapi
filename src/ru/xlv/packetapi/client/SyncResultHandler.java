@@ -1,6 +1,6 @@
 package ru.xlv.packetapi.client;
 
-import ru.xlv.packetapi.capability.PacketAPI;
+import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.client.packet.IPacketCallbackEffective;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
