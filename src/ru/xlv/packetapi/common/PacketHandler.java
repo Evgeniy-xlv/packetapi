@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 public abstract class PacketHandler<PLAYER> implements IPacketHandler {
 
-    protected final Logger logger;
+    private final Logger logger;
 
     private final AbstractNetworkAdapter<PLAYER> networkAdapter;
 
@@ -27,7 +27,8 @@ public abstract class PacketHandler<PLAYER> implements IPacketHandler {
     public PacketHandler(@Nonnull PacketRegistry packetRegistry, @Nonnull String channelName) {
         this.packetRegistry = packetRegistry;
         this.channelName = channelName;
-        networkAdapter = PacketAPI.INSTANCE.getCapabilityAdapter().newNetworkAdapter(new TypeToken<PLAYER>(getClass()) {}.getRawType(), channelName, this::onClientPacketReceived, this::onServerPacketReceived);
+        //noinspection UnstableApiUsage
+        this.networkAdapter = PacketAPI.INSTANCE.getCapabilityAdapter().newNetworkAdapter(new TypeToken<PLAYER>(getClass()) {}.getRawType(), channelName, this::onClientPacketReceived, this::onServerPacketReceived);
         this.logger = Logger.getLogger(this.getClass().getSimpleName() + ":" + channelName);
     }
 
@@ -58,6 +59,10 @@ public abstract class PacketHandler<PLAYER> implements IPacketHandler {
         }
         networkAdapter.sendTo(entityPlayer, bbos);
         bbos.close();
+    }
+
+    protected Logger getLogger() {
+        return logger;
     }
 
     protected AbstractNetworkAdapter<PLAYER> getNetworkAdapter() {

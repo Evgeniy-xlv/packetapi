@@ -51,7 +51,7 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
                         ((IPacketIn) packet).read(bbis);
                     }
                 } catch (Exception e) {
-                    logger.warning("An error has occurred during executing a packet " + pid + "#" + packet);
+                    getLogger().warning("An error has occurred during executing a packet " + pid + "#" + packet);
                     e.printStackTrace();
                 }
             });

@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * */
 public class PacketRegistry {
 
-    private static final Logger log = Logger.getLogger(PacketRegistry.class.getName());
+    private static final Logger log = Logger.getLogger(PacketRegistry.class.getSimpleName());
 
     private static class RegisterElement implements Comparable<RegisterElement> {
         private final String modid;
@@ -36,8 +36,8 @@ public class PacketRegistry {
         }
     }
 
-    private final TIntObjectMap<IPacket> REGISTRY = TCollections.synchronizedMap(new TIntObjectHashMap<>());
-    private final TObjectIntMap<Class<? extends IPacket>> CLASS_REGISTRY = TCollections.synchronizedMap(new TObjectIntHashMap<>());
+    private final TIntObjectMap<IPacket> registry = TCollections.synchronizedMap(new TIntObjectHashMap<>());
+    private final TObjectIntMap<Class<? extends IPacket>> classRegistry = TCollections.synchronizedMap(new TObjectIntHashMap<>());
 
     private final List<RegisterElement> registerElements = new ArrayList<>();
 
@@ -85,8 +85,8 @@ public class PacketRegistry {
 
     private void register(IPacket packet) {
         int pid = getPacketIDCounter();
-        REGISTRY.put(pid, packet);
-        CLASS_REGISTRY.put(packet.getClass(), pid);
+        registry.put(pid, packet);
+        classRegistry.put(packet.getClass(), pid);
         log.info("registered a " + packet.getClass().getName() + " with id " + pid);
     }
 
@@ -97,10 +97,10 @@ public class PacketRegistry {
     }
 
     public TIntObjectMap<IPacket> getRegistry() {
-        return REGISTRY;
+        return registry;
     }
 
     public TObjectIntMap<Class<? extends IPacket>> getClassRegistry() {
-        return CLASS_REGISTRY;
+        return classRegistry;
     }
 }

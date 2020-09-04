@@ -18,7 +18,6 @@ import java.util.function.Consumer;
  * */
 public class SyncResultHandler<T> {
 
-    private static final Consumer<Runnable> mainThreadExecutor = PacketAPI.INSTANCE.getCapabilityAdapter()::scheduleTaskSync;
     private final CompletableFuture<T> completableFuture;
     private final boolean checkNonNullResult;
 
@@ -41,7 +40,7 @@ public class SyncResultHandler<T> {
             if(checkNonNullResult && result == null) {
                 return;
             }
-            mainThreadExecutor.accept(() -> consumer.accept(result));
+            PacketAPI.INSTANCE.getCapabilityAdapter().scheduleTaskSync(() -> consumer.accept(result));
         });
     }
 }

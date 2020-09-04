@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Вместо этого достаточно пометить класс аннотацией и для нее автоматически сгенерируется новый контроллер с заданными параметрами.
  *
  * Важно понимать, что если обработка пакета была отклонена подобным контроллером,
- * метод {@link IPacketInOnServerRaw#read(EntityPlayerMP, ByteBufInputStream)} не будет вызван.
+ * метод {@link IPacketInOnServerRaw#read(Object, ByteBufInputStream)} не будет вызван.
  * */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

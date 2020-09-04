@@ -189,10 +189,6 @@ public class PacketHandlerBukkitServer implements IPacketHandlerServer<Player, I
         return Bukkit.getOnlinePlayers().stream();
     }
 
-    public Map<Class<? extends IPacket>, PacketData> getPacketMap() {
-        return this.packetMap;
-    }
-
     public PacketRegistry getPacketRegistry() {
         return this.packetRegistry;
     }

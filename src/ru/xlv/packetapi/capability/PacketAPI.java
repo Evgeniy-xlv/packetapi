@@ -29,7 +29,7 @@ public class PacketAPI {
             e.printStackTrace();
         }
         if (INSTANCE.getCapabilityAdapter() == null) {
-            initCapabilityAdapter(System.getProperty("packetapi.gameVersion"));
+            initCapabilityAdapter(System.getProperty("ru.xlv.packetapi.gameVersion"));
         }
     }
 

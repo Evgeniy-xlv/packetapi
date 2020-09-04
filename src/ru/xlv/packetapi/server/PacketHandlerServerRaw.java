@@ -14,7 +14,6 @@ import ru.xlv.packetapi.server.packet.forge.IPacketCallbackOnServerRaw;
 import ru.xlv.packetapi.server.packet.forge.IPacketInOnServerRaw;
 import ru.xlv.packetapi.server.packet.forge.IPacketOutServerRaw;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +28,7 @@ public class PacketHandlerServerRaw<PLAYER> extends PacketHandler<PLAYER> implem
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
+    @SuppressWarnings("UnstableApiUsage")
     private final Class<? super PLAYER> playerTypeClass = new TypeToken<PLAYER>(getClass()){}.getRawType();
 
     public PacketHandlerServerRaw(PacketRegistry packetRegistry, String channelName) {
@@ -67,12 +67,13 @@ public class PacketHandlerServerRaw<PLAYER> extends PacketHandler<PLAYER> implem
             if (packet instanceof IPacketCallback) {
                 processPacketCallbackOnServer((IPacketCallback) packet, pid, rejected && packetData.callWriteAnyway, entityPlayer, byteBufInputStream);
             } else if (packet instanceof IPacketInOnServerRaw) {
+                //noinspection unchecked
                 ((IPacketInOnServerRaw<PLAYER>) packet).read(entityPlayer, byteBufInputStream);
             } else if (packet instanceof IPacketIn) {
                 ((IPacketIn) packet).read(byteBufInputStream);
             }
         } catch (Exception e) {
-            logger.warning("An error has occurred during executing a packet " + pid + "#" + packet + ". Sender: " + PacketAPI.INSTANCE.getCapabilityAdapter().getPlayerEntityName(entityPlayer));
+            getLogger().warning("An error has occurred during executing a packet " + pid + "#" + packet + ". Sender: " + PacketAPI.INSTANCE.getCapabilityAdapter().getPlayerEntityName(entityPlayer));
             e.printStackTrace();
         }
     }
@@ -81,7 +82,9 @@ public class PacketHandlerServerRaw<PLAYER> extends PacketHandler<PLAYER> implem
         int callbackId = bbis.readInt();
         if(!callWriteOnly) {
             if (packet instanceof IPacketCallbackOnServerRaw) {
+                //noinspection unchecked
                 ((IPacketCallbackOnServerRaw<PLAYER>) packet).read(entityPlayer, bbis, () -> {
+                    //noinspection unchecked
                     if (((IPacketCallbackOnServerRaw<PLAYER>) packet).handleCallback()) {
                         try {
                             sendPacketCallbackToClient(packet, pid, callbackId, entityPlayer);
@@ -94,6 +97,7 @@ public class PacketHandlerServerRaw<PLAYER> extends PacketHandler<PLAYER> implem
                 packet.read(bbis);
             }
         }
+        //noinspection unchecked
         if(!(packet instanceof IPacketCallbackOnServerRaw) || !((IPacketCallbackOnServerRaw<PLAYER>) packet).handleCallback()) {
             sendPacketCallbackToClient(packet, pid, callbackId, entityPlayer);
         }
@@ -104,6 +108,7 @@ public class PacketHandlerServerRaw<PLAYER> extends PacketHandler<PLAYER> implem
         bbos.writeInt(pid);
         bbos.writeInt(callbackId);
         if(packet instanceof IPacketCallbackOnServerRaw) {
+            //noinspection unchecked
             ((IPacketCallbackOnServerRaw<PLAYER>) packet).write(entityPlayer, bbos);
         } else {
             packet.write(bbos);
@@ -121,56 +126,6 @@ public class PacketHandlerServerRaw<PLAYER> extends PacketHandler<PLAYER> implem
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Отправляет пакет всем на сервере.
-     * */
-    @Override
-    public void sendPacketToAll(@Nonnull IPacketOutServerRaw<PLAYER> packetOut) {
-        getOnlinePlayers()
-                .forEach(entityPlayerMP -> sendPacketToPlayer(entityPlayerMP, packetOut));
-    }
-
-    /**
-     * Отправляет пакет всем на сервере, исключая игрока.
-     * */
-    @Override
-    public void sendPacketToAllExcept(@Nonnull PLAYER entityPlayer, @Nonnull IPacketOutServerRaw<PLAYER> packetOut) {
-        getOnlinePlayers()
-                .filter(entityPlayerMP -> entityPlayerMP != entityPlayer)
-                .forEach(entityPlayerMP -> sendPacketToPlayer(entityPlayer, packetOut));
-    }
-
-    /**
-     * Отправляет пакет всем вокруг точки в радиусе.
-     * */
-    @Override
-    public void sendPacketToAllAround(double x, double y, double z, double radius, @Nonnull IPacketOutServerRaw<PLAYER> packetOut) {
-        getOnlinePlayers()
-                .filter(entityPlayerMP -> PacketAPI.INSTANCE.getCapabilityAdapter().getDistanceBetween(entityPlayerMP, x, y, z) < radius)
-                .forEach(entityPlayerMP -> sendPacketToPlayer(entityPlayerMP, packetOut));
-    }
-
-    /**
-     * Отправляет пакет всем вокруг игрока в радиусе.
-     * */
-    @Override
-    public void sendPacketToAllAround(@Nonnull PLAYER entity, double radius, @Nonnull IPacketOutServerRaw<PLAYER> packetOut) {
-        getOnlinePlayers()
-                .filter(entityPlayerMP -> PacketAPI.INSTANCE.getCapabilityAdapter().getDistanceBetween(entity, entityPlayerMP) < radius)
-                .forEach(entityPlayerMP -> sendPacketToPlayer(entityPlayerMP, packetOut));
-    }
-
-    /**
-     * Отправляет пакет всем вокруг игрока в радиусе, исключая игрока.
-     * */
-    @Override
-    public void sendPacketToAllAroundExcept(@Nonnull PLAYER entityPlayer, double radius, @Nonnull IPacketOutServerRaw<PLAYER> packetOut) {
-        getOnlinePlayers()
-                .filter(entityPlayerMP -> entityPlayer != entityPlayerMP)
-                .filter(entityPlayerMP -> PacketAPI.INSTANCE.getCapabilityAdapter().getDistanceBetween(entityPlayer, entityPlayerMP) < radius)
-                .forEach(entityPlayerMP -> sendPacketToPlayer(entityPlayerMP, packetOut));
     }
 
     @Override

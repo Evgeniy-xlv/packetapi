@@ -152,7 +152,7 @@ public interface IPacket {
     /**
      * Позволяет прочитать {@link Serializable} из буфера.
      * <p>
-     * Используйте {@link IPacket#readObjects} для чтения нескольких объектов за раз, т.к. данный метод не изменяет {@link io.netty.buffer.ByteBuf#readerIndex} у входящего byteBufInputStream.
+     * Рекомендуется использовать {@link IPacket#readObjects} для записи нескольких объектов сразу.
      * */
     @SuppressWarnings("unchecked")
     default  <T extends Serializable> T readObject(@Nonnull ByteBufInputStream byteBufInputStream, @Nonnull Class<T> tClass) throws IOException {
