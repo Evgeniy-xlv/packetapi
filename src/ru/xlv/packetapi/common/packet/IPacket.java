@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBufOutputStream;
 import ru.xlv.flex.thr.ThrBiConsumer;
 import ru.xlv.flex.thr.ThrCallable;
 import ru.xlv.flex.thr.ThrFunction;
+import ru.xlv.packetapi.common.composable.Composable;
+import ru.xlv.packetapi.common.composable.Composer;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
 import javax.annotation.Nonnull;
@@ -15,8 +17,10 @@ import java.util.*;
 
 public interface IPacket {
 
+    Composer COMPOSER = new Composer();
+
     /**
-     * Позволяет записать коллекцию в буфер, используя {@link ThrBiConsumer}.
+     * Writes a collection to the buffer, using {@link ThrBiConsumer}.
      * */
     default <T> void writeCollection(@Nonnull ByteBufOutputStream byteBufOutputStream, Collection<T> collection, @Nonnull ThrBiConsumer<ByteBufOutputStream, T> consumer) throws IOException {
         if(collection == null) {
@@ -30,7 +34,7 @@ public interface IPacket {
     }
 
     /**
-     * Позволяет прочитать данные и добавить их в {@link ArrayList}, используя {@link ThrFunction}.
+     * Reads the data and add it to {@link ArrayList}, using {@link ThrFunction}.
      * */
     default <T> ArrayList<T> readList(@Nonnull ByteBufInputStream byteBufInputStream, @Nonnull ThrFunction<ByteBufInputStream, T> function) throws IOException {
         ArrayList<T> list = new ArrayList<>();
@@ -42,7 +46,7 @@ public interface IPacket {
     }
 
     /**
-     * Позволяет прочитать данные и добавить их в {@link ArrayList}, используя {@link ThrCallable}.
+     * Reads the data and add it to {@link ArrayList}, using {@link ThrCallable}.
      * */
     default <T> ArrayList<T> readList(@Nonnull ByteBufInputStream byteBufInputStream, @Nonnull ThrCallable<T> callable) throws IOException {
         ArrayList<T> list = new ArrayList<>();
@@ -54,7 +58,7 @@ public interface IPacket {
     }
 
     /**
-     * Позволяет записать {@link IPacketComposable} в буфер.
+     * Writes {@link IPacketComposable} to the buffer.
      * */
     default <T extends IPacketComposable> void writeComposable(@Nonnull ByteBufOutputStream byteBufOutputStream, @Nonnull T object) throws IOException {
         List<Object> list = new LinkedList<>();
@@ -75,36 +79,36 @@ public interface IPacket {
     }
 
     /**
-     * @param tClass должен иметь пустой конструктор
+     * @param tClass must have an empty public constructor.
      * */
     default <T extends IPacketComposable & Serializable> T readComposable(@Nonnull ByteBufInputStream byteBufInputStream, @Nonnull Class<T> tClass) throws IOException {
         return readObject(byteBufInputStream, tClass);
     }
 
     /**
-     * Позволяет записать все {@link Serializable} из входящего {@link ArrayList} в буфер в качестве {@link ArrayList}.
+     * Writes all {@link Serializable} from input {@link ArrayList} to the buffer as {@link ArrayList}.
      * */
     default <T extends Serializable> void writeObjects(@Nonnull ByteBufOutputStream byteBufOutputStream, @Nonnull ArrayList<T> arrayList) throws IOException {
         writeObject(byteBufOutputStream, arrayList);
     }
 
     /**
-     * Позволяет записать все {@link Serializable} из входящей {@link Collection} в буфер в качестве {@link ArrayList}.
+     * Writes all {@link Serializable} from input {@link Collection} to the buffer as {@link ArrayList}.
      * */
     default <T extends Serializable> void writeObjects(@Nonnull ByteBufOutputStream byteBufOutputStream, @Nonnull Collection<T> collection) throws IOException {
         writeObject(byteBufOutputStream, new ArrayList<>(collection));
     }
 
     /**
-     * Позволяет записать все {@link Serializable} из входящего массива {@link Serializable} в буфер в качестве {@link ArrayList}.
+     * Writes all {@link Serializable} from input array of {@link Serializable} to the buffer as {@link ArrayList}.
      * */
     default void writeObjects(@Nonnull ByteBufOutputStream byteBufOutputStream, @Nonnull Serializable... serializables) throws IOException {
         writeObject(byteBufOutputStream, (ArrayList<Serializable>) Arrays.asList(serializables));
     }
 
     /**
-     * Пытается прочитать {@link ArrayList} из буфера, который должен содержать объекты типа tClass.
-     * @return полученный {@link ArrayList}, либо пустой {@link ArrayList} при неудаче.
+     * Attempts to read {@link ArrayList} from the buffer that should contain objects of type tClass.
+     * @return read {@link ArrayList} or empty {@link ArrayList} on failure.
      * */
     @Nonnull
     @SuppressWarnings("CastCanBeRemovedNarrowingVariableType")
@@ -118,9 +122,7 @@ public interface IPacket {
     }
 
     /**
-     * Позволяет записать {@link Serializable} в буфер.
-     * <p>
-     * Рекомендуется использовать {@link IPacket#writeObjects} для записи нескольких объектов сразу.
+     * Writes {@link Serializable} to the buffer.
      * */
     default void writeObject(@Nonnull ByteBufOutputStream byteBufOutputStream, @Nonnull Serializable serializable) throws IOException {
         if(serializable instanceof String) {
@@ -143,6 +145,8 @@ public interface IPacket {
             byteBufOutputStream.writeShort((Short) serializable);
         } else if(serializable instanceof byte[]) {
             byteBufOutputStream.writeBytes(new String((byte[]) serializable));
+        } else if(serializable instanceof Composable) {
+            COMPOSER.compose((Composable) serializable, byteBufOutputStream);
         } else {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteBufOutputStream);
             objectOutputStream.writeObject(serializable);
@@ -150,9 +154,7 @@ public interface IPacket {
     }
 
     /**
-     * Позволяет прочитать {@link Serializable} из буфера.
-     * <p>
-     * Рекомендуется использовать {@link IPacket#readObjects} для записи нескольких объектов сразу.
+     * Reads {@link Serializable} from the buffer.
      * */
     @SuppressWarnings("unchecked")
     default  <T extends Serializable> T readObject(@Nonnull ByteBufInputStream byteBufInputStream, @Nonnull Class<T> tClass) throws IOException {
@@ -176,6 +178,8 @@ public interface IPacket {
             return (T) new Short(byteBufInputStream.readShort());
         } else if(tClass == byte[].class) {
             return (T) byteBufInputStream.readUTF().getBytes();
+        } else if(Composable.class.isAssignableFrom(tClass)) {
+            return (T) COMPOSER.decompose(byteBufInputStream);
         } else {
             try {
                 ObjectInputStream objectInputStream = new ObjectInputStream(byteBufInputStream);

@@ -8,11 +8,11 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 
 /**
- * Основной тип запроса, возвращающий результат в качестве установленного типа данных.
+ * The main type of request that returns a result as a specified data type.
  * <p>
- * Следует использовать вместе с {@link ru.xlv.packetapi.client.SyncResultHandler}.
+ * Should be used in conjunction with {@link ru.xlv.packetapi.client.SyncResultHandler}.
  *
- * Прим. использования:
+ * Usage example:
  * <pre>
  *
  * //...
@@ -31,12 +31,12 @@ import java.io.IOException;
  *    private final Result result = new Result();
  *
  *    public void write(ByteBufOutputStream bbos) throws IOException {
- *        // упаковка запроса на сервер
+ *        // packing the request to the server
  *        bbos.writeInt(2);
  *    }
  *
  *    public void read(ByteBufInputStream bbis) throws IOException {
- *        // конструкция ответа от сервера в случае, если ответ был получен
+ *        // constructing of a response from the server in case a response was received
  *        result.success = bbis.readBoolean();
  *        result.responseMessage = bbis.readUTF();
  *    }
@@ -52,9 +52,9 @@ import java.io.IOException;
  * }
  * <pre>
  *
- * @param <T> тип ответа от сервера.
+ * @param <RESULT> the type of response from the server.
  * */
-public interface IPacketCallbackEffective<T> extends IPacketCallback {
+public interface IPacketCallbackEffective<RESULT> extends IPacketCallback {
 
     @Override
     void write(ByteBufOutputStream bbos) throws IOException;
@@ -63,8 +63,8 @@ public interface IPacketCallbackEffective<T> extends IPacketCallback {
     void read(ByteBufInputStream bbis) throws IOException;
 
     /**
-     * @return сконструированный ответ от сервера. Конструкцию ответа следует проводить в {@link IPacketCallbackEffective#read(ByteBufInputStream)}
+     * @return a constructed response from the server. The response should be constructed in {@link IPacketCallbackEffective#read(ByteBufInputStream)}
      * */
     @Nullable
-    T getResult();
+    RESULT getResult();
 }

@@ -8,11 +8,11 @@ import ru.xlv.packetapi.server.packet.PacketCallbackSender;
 import java.io.IOException;
 
 /**
- * Специализированный пакет для обработки запросов на серверной стороне.
+ * A special packet for processing requests on the server side.
  * <p>
- * Использовать только в паре с {@link IPacketCallback} и его потомками, тк эти пакеты дополнительно подписываются!
+ * Use only in conjunction with {@link IPacketCallback} and its childes, as these packets are additionally signing!
  *
- * Прим. использования:
+ * Usage example:
  * <pre>
  * public class MyCallbackOnServer implements IPacketCallbackOnServerRaw {
  *
@@ -29,7 +29,7 @@ import java.io.IOException;
  *          success = true;
  *      }
  *      bbos.writeBoolean(success);
- *      bbos.writeUTF("Вау! Твое число способно делиться на 2 без остатка. Поздравляю!");
+ *      bbos.writeUTF("Wow! Your number can be divisible by 2 without a remainder. Congratulations!");
  *    }
  * }
  * <pre>
@@ -37,34 +37,40 @@ import java.io.IOException;
 public interface IPacketCallbackOnServerRaw<PLAYER> extends IPacketCallback {
 
     /**
-     * Здесь следует производить чтение данных и их обработку.
-     * @param packetCallbackSender использовать только если {@link IPacketCallbackOnServerRaw#handleCallback()} == true, иначе будет отослано два пакета.
+     * Here you should read the data and process them.
+     * @param packetCallbackSender use if {@link IPacketCallbackOnServerRaw#handleCallback()} == true, therwise two packets will be sent.
      * */
     void read(PLAYER entityPlayer, ByteBufInputStream bbis, PacketCallbackSender packetCallbackSender) throws IOException;
 
     /**
-     * Здесь следует производить конструкцию ответа и его записи в буфер. Будет вызван только в случае, если не возникло ошибок
-     * при чтении запроса и у PacketCallbackSender в методе {@link IPacketCallbackOnServerRaw#read(PLAYER, ByteBufInputStream, PacketCallbackSender)}
-     * был вызван метод {@link PacketCallbackSender#send()}.
+     * Here you should construct the response and write it to the buffer. Will be called only if no errors occurred
+     * while reading the request and the {@link PacketCallbackSender#send()} method was called in the
+     * {@link IPacketCallbackOnServerRaw#read(PLAYER, ByteBufInputStream, PacketCallbackSender)} method for the PacketCallbackSender.
      * <p>
-     * Произойти это может только в двух случаях:
+     * This can happen only in two cases:
      * <p>
-     *  1. Управление пакетом осталось за апи и метод write вызвался сразу за read.
+     *  1. Control was left to the api and the write method was called immediately after read.
      * <p>
-     *  2. Управление было взято программистом, который вручную вызвал метод {@link PacketCallbackSender#send()} в методе read.
+     *  2. Control was taken over by a programmer who manually called the {@link PacketCallbackSender#send()} method in the read method.
      * */
     void write(PLAYER entityPlayer, ByteBufOutputStream bbos) throws IOException;
 
+    /**
+     * @deprecated This method is not called for packets of this type, use {@link IPacketCallbackOnServerRaw#read(PLAYER, ByteBufInputStream, PacketCallbackSender)}.
+     * */
     @Deprecated
     @Override
     default void read(ByteBufInputStream bbis) throws IOException {}
 
+    /**
+     * @deprecated This method is not called for packets of this type, use {@link IPacketCallbackOnServerRaw#write(PLAYER, ByteBufOutputStream)}.
+     * */
     @Deprecated
     @Override
     default void write(ByteBufOutputStream bbos) throws IOException {}
 
     /**
-     * Следует возвращать true, чтобы взять конроль над отправкой колбека в свои руки.
+     * Return true to take control of the dispatch of the callback.
      * */
     default boolean handleCallback() {
         return false;

@@ -6,7 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.xlv.packetapi.common.PacketRegistry;
+import ru.xlv.packetapi.common.registry.SimplePacketRegistry;
 import ru.xlv.packetapi.server.PacketHandlerBukkitServer;
 
 import java.util.UUID;
@@ -18,11 +18,7 @@ public class OnlineTimeSenderPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        String channelName = "timesenderexample";
-        PacketRegistry packetRegistry = new PacketRegistry()
-                .register(channelName, new PacketOnlineSend())
-                .applyRegistration();
-        packetHandlerBukkitServer = new PacketHandlerBukkitServer(this, packetRegistry, channelName);
+        packetHandlerBukkitServer = new PacketHandlerBukkitServer(this, new SimplePacketRegistry().register(new PacketOnlineSend()), "timesenderexample");
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> packetHandlerBukkitServer.sendPacketToAll(new PacketOnlineSend()), 0L, 20L);
     }

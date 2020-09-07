@@ -8,9 +8,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
- * Используется в паре с {@link IPacketCallbackEffective} и служит для возможности его обработки в синхронном порядке.
+ * Used in conjunction with {@link IPacketCallbackEffective} and serves to be able to process it in a synchronous order.
  * <p>
- * Прим. использования:
+ * Usage example:
  * <pre>
  *      PacketHandlerClient.sendPacketEffectiveCallback(...)
  *                  .thenAcceptSync(result -> {...});
@@ -31,16 +31,16 @@ public class SyncResultHandler<T> {
     }
 
     /**
-     * Позволяет обработать асинхронный результат в основном потоке.
+     * Handles asynchronous result in the main thread.
      * <p>
-     * Будет вызван сразу же после того, как выполнится {@link IPacketCallbackEffective#read(ByteBufInputStream)}
+     * It will be called immediately after {@link IPacketCallbackEffective#read(ByteBufInputStream)} is executed.
      * */
     public void thenAcceptSync(Consumer<T> consumer) {
         completableFuture.thenAccept(result -> {
             if(checkNonNullResult && result == null) {
                 return;
             }
-            PacketAPI.INSTANCE.getCapabilityAdapter().scheduleTaskSync(() -> consumer.accept(result));
+            PacketAPI.getCapabilityAdapter().scheduleTaskSync(() -> consumer.accept(result));
         });
     }
 }

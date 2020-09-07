@@ -7,7 +7,7 @@ import java.io.IOException;
 public interface IPacketOut extends IPacket {
 
     /**
-     * Вызывается перед отправкой
+     * This method will be called before sending.
      * */
     void write(ByteBufOutputStream bbos) throws IOException;
 }

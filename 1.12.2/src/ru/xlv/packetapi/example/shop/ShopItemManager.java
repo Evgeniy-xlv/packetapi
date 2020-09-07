@@ -8,9 +8,9 @@ public class ShopItemManager {
     //имитируем выдачу товаров по категории
     public List<ShopItem> getItemListByCategory(String category) {
         return Arrays.asList(
-                new ShopItem(0, "Имя", 123),
-                new ShopItem(1, "любимое", 321),
-                new ShopItem(2, "мое", 132)
+                new ShopItem(0, "AAA", 123),
+                new ShopItem(1, "BBB", 321),
+                new ShopItem(2, "CCC", 132)
         );
     }
 }

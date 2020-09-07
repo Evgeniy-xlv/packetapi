@@ -6,9 +6,10 @@ archivesBaseName = "packetapi-${gameVersion}-${libVersion}"
 sourceCompatibility = targetCompatibility =  '1.8'
 compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
 
-sourceSets.main {
-    java.srcDir 'src'
-    resources.srcDir 'resources'
+sourceSets {
+    test.java.srcDir 'test'
+    main.java.srcDir 'src'
+    main.resources.srcDir 'resources'
 }
 
 repositories {

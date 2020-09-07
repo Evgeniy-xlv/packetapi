@@ -6,18 +6,30 @@ import io.netty.buffer.Unpooled;
 import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.client.packet.IPacketCallbackEffective;
 import ru.xlv.packetapi.common.PacketHandler;
-import ru.xlv.packetapi.common.PacketRegistry;
+import ru.xlv.packetapi.common.composable.Composable;
 import ru.xlv.packetapi.common.packet.IPacket;
 import ru.xlv.packetapi.common.packet.IPacketCallback;
 import ru.xlv.packetapi.common.packet.IPacketIn;
+import ru.xlv.packetapi.common.packet.IPacketOut;
+import ru.xlv.packetapi.common.registry.AbstractPacketRegistry;
+import ru.xlv.packetapi.common.registry.SimplePacketRegistry;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
+import javax.annotation.Nonnull;
+import javax.annotation.WillClose;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The main client-side packet handler.
+ * The handler deals with both receiving and sending packets. Using this handler, you can send both
+ * simple packets(eg. {@link ru.xlv.packetapi.common.packet.IPacketOut}) and callbacks ({@link IPacketCallbackEffective}).
+ * <p>
+ * You should use an adapted version of this handler ({@link ru.xlv.packetapi.client.PacketHandlerClient}) for each version of the game.
+ * */
 public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
 
     private final long defaultCheckResultPeriod;
@@ -28,11 +40,23 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-    public PacketHandlerClientRaw(PacketRegistry packetRegistry, String channelName) {
+    public PacketHandlerClientRaw() {
+        this(new SimplePacketRegistry(), PacketAPI.getApiDefaultChannelName());
+    }
+
+    public PacketHandlerClientRaw(@Nonnull String channelName) {
+        this(new SimplePacketRegistry(), channelName);
+    }
+
+    public PacketHandlerClientRaw(@Nonnull AbstractPacketRegistry packetRegistry) {
+        this(packetRegistry, PacketAPI.getApiDefaultChannelName());
+    }
+
+    public PacketHandlerClientRaw(@Nonnull AbstractPacketRegistry packetRegistry, @Nonnull String channelName) {
         this(packetRegistry, channelName, 2000L, 0L);
     }
 
-    public PacketHandlerClientRaw(PacketRegistry packetRegistry, String channelName, long callbackResultWaitTimeout, long defaultCheckResultPeriod) {
+    public PacketHandlerClientRaw(@Nonnull AbstractPacketRegistry packetRegistry, @Nonnull String channelName, long callbackResultWaitTimeout, long defaultCheckResultPeriod) {
         super(packetRegistry, channelName);
         this.defaultCheckResultPeriod = defaultCheckResultPeriod;
         this.callbackResultWaitTimeout = callbackResultWaitTimeout;
@@ -41,10 +65,14 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
     @Override
     protected void onClientPacketReceived(ByteBufInputStream bbis) throws IOException {
         int pid = bbis.readInt();
-        IPacket packet = getPacketById(pid);
-        if (packet != null) {
-            PacketAPI.INSTANCE.getCapabilityAdapter().scheduleTaskSync(() -> {
+        IPacket packet = findPacketById(pid);
+        if (packet != null || pid == -1) {
+            PacketAPI.getCapabilityAdapter().scheduleTaskSync(() -> {
                 try {
+                    if (pid == -1) {
+                        PacketAPI.getComposableCatcherBus().post(getComposer().decompose(bbis));
+                        return;
+                    }
                     if (packet instanceof IPacketCallback) {
                         processPacketCallbackOnClient(bbis);
                     } else if (packet instanceof IPacketIn) {
@@ -76,12 +104,43 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
     }
 
     /**
-     * Позволяет отсылать пакет, у объекта которого вызовется метод {@link IPacketCallback#read(ByteBufInputStream)},
-     * когда(если) сервер отошлет ответный пакет с тем же packetId и callbackId обратно клиенту.
+     * Sends the composable object to the server side.
+     * @see Composable
+     * */
+    public <T extends Composable> void sendComposable(@Nonnull T composable) {
+        ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
+        try {
+            byteBufOutputStream.writeInt(-1);
+            getComposer().compose(composable, byteBufOutputStream);
+            sendPacketToServer(byteBufOutputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendPacketToServer(@Nonnull IPacketOut packet) {
+        ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
+        try {
+            byteBufOutputStream.writeInt(getPacketId(packet));
+            packet.write(byteBufOutputStream);
+            sendPacketToServer(byteBufOutputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void sendPacketToServer(@Nonnull @WillClose ByteBufOutputStream bbos) throws IOException {
+        getNetworkAdapter().sendToServer(bbos);
+        bbos.close();
+    }
+
+    /**
+     * Sends a packet, that calls the {@link IPacketCallback#read(ByteBufInputStream)} method,
+     * when(if) the server sends a response packet with the same packetId and callbackId back to the client.
      *
      * @return callbackId
      * */
-    public int sendPacketCallback(IPacketCallback packet) {
+    public int sendPacketCallback(@Nonnull IPacketCallback packet) {
         int id = genCallbackId();
         synchronized (callbackMap) {
             callbackMap.put(id, packet);
@@ -99,42 +158,48 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
     }
 
     /**
-     * @return {@link SyncResultHandler}, который позволяет выполнить обработку ответа синхронно в основном потоке.
-     * Возвращаемый {@link SyncResultHandler} содержит not null результат.
+     * Sends a packet, that calls the {@link IPacketCallbackEffective#read(ByteBufInputStream)} method,
+     * when(if) the server sends a response packet with the same packetId and callbackId back to the client.
+     *
+     * @return {@link SyncResultHandler}, which lets the response to be processed synchronously on the main thread.
+     * The returned {@link SyncResultHandler} contains a not null result.
      * */
-    public <T> SyncResultHandler<T> sendPacketEffectiveCallback(IPacketCallbackEffective<T> packet) {
+    public <T> SyncResultHandler<T> sendPacketEffectiveCallback(@Nonnull IPacketCallbackEffective<T> packet) {
         return new SyncResultHandler<>(sendPacketCallbackAsync(packet));
     }
 
     /**
-     * @param checkNonNullResult позволяет проверить результат на null
-     * @return {@link SyncResultHandler}, который позволяет выполнить обработку ответа синхронно в основном потоке.
+     * Sends a packet, that calls the {@link IPacketCallbackEffective#read(ByteBufInputStream)} method,
+     * when(if) the server sends a response packet with the same packetId and callbackId back to the client.
+     *
+     * @param checkNonNullResult lets you check if the result is null
+     * @return {@link SyncResultHandler}, which lets the response to be processed synchronously on the main thread.
      * */
-    public <T> SyncResultHandler<T> sendPacketEffectiveCallback(IPacketCallbackEffective<T> packet, boolean checkNonNullResult) {
+    public <T> SyncResultHandler<T> sendPacketEffectiveCallback(@Nonnull IPacketCallbackEffective<T> packet, boolean checkNonNullResult) {
         return new SyncResultHandler<>(sendPacketCallbackAsync(packet), checkNonNullResult);
     }
 
     /**
-     * Позволяет отсылать пакет, у объекта которого вызовется метод {@link IPacketCallbackEffective#read(ByteBufInputStream)},
-     * когда(если) сервер отошлет ответный пакет с тем же packetId и callbackId обратно клиенту.
+     * Sends a packet, that calls the {@link IPacketCallbackEffective#read(ByteBufInputStream)} method,
+     * when(if) the server sends a response packet with the same packetId and callbackId back to the client.
      *
-     * @return {@link CompletableFuture}, который будет содержать ответ от сервера или NULL, если ответ не был получен
-     * или был неверно сконструирован.
+     * @return {@link CompletableFuture}, which will be contain the response from the server, or null if no response
+     * was received or was improperly constructed.
      * */
-    public <T> CompletableFuture<T> sendPacketCallbackAsync(IPacketCallbackEffective<T> packet) {
+    public <T> CompletableFuture<T> sendPacketCallbackAsync(@Nonnull IPacketCallbackEffective<T> packet) {
         return sendPacketCallbackAsync(packet, defaultCheckResultPeriod);
     }
 
     /**
-     * Позволяет отсылать пакет, у объекта которого вызовется метод {@link IPacketCallbackEffective#read(ByteBufInputStream)},
-     * когда(если) сервер отошлет ответный пакет с тем же packetId и callbackId обратно клиенту.
+     * Sends a packet, that calls the {@link IPacketCallbackEffective#read(ByteBufInputStream)} method,
+     * when(if) the server sends a response packet with the same packetId and callbackId back to the client.
      *
-     * @param checkResultPeriod период проверки подготовленного ответа.
+     * @param checkResultPeriod is the period in millis for checking the prepared response.
      *
-     * @return {@link CompletableFuture}, который будет содержать ответ от сервера или NULL, если ответ не был получен
-     * или был неверно сконструирован.
+     * @return {@link CompletableFuture}, which will be contain the response from the server, or null if no response
+     * was received or was improperly constructed.
      * */
-    public <T> CompletableFuture<T> sendPacketCallbackAsync(IPacketCallbackEffective<T> packet, long checkResultPeriod) {
+    public <T> CompletableFuture<T> sendPacketCallbackAsync(@Nonnull IPacketCallbackEffective<T> packet, long checkResultPeriod) {
         final int id = sendPacketCallback(packet);
         return CompletableFuture.supplyAsync(() -> {
             long l = System.currentTimeMillis() + callbackResultWaitTimeout;

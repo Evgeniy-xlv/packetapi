@@ -6,7 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.xlv.packetapi.common.PacketRegistry;
+import ru.xlv.packetapi.common.registry.PacketRegistry;
 import ru.xlv.packetapi.server.PacketHandlerBukkitServer;
 
 import java.util.UUID;

@@ -8,12 +8,18 @@ import ru.xlv.packetapi.common.util.ByteBufInputStream;
 import java.io.IOException;
 
 /**
- * Специальный пакет для серверной стороны, позволяет работать с игроком, от которого пришел пакет.
+ * A special packet for the server side, allows you to work with the player from whom the package came.
  * */
 public interface IPacketInOnBukkit extends IPacketIn {
 
+    /**
+     * This method will be called when the packet is received.
+     * */
     void read(Player player, ByteBufInputStream bbis) throws IOException;
 
+    /**
+     * @deprecated This method is not called for packets of this type, use {@link IPacketInOnBukkit#read(Player, ByteBufInputStream)}.
+     * */
     @Deprecated
     @Override
     default void read(ByteBufInputStream bbis) throws IOException {}

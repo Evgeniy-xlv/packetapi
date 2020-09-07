@@ -21,12 +21,12 @@ public class PacketShopCategoryGetOnServer implements IPacketCallbackOnServer {
     @Override
     public void read(EntityPlayerMP entityPlayer, ByteBufInputStream bbis, PacketCallbackSender packetCallbackSender) throws IOException {
         String category = bbis.readUTF();
-        System.out.println("Входящий запрос товаров по категории: " + category);
+        System.out.println("Incoming request shop items by category: " + category);
         long l = System.currentTimeMillis();
         REQUEST_CONTROLLER.doCompletedRequestAsync(entityPlayer.getUniqueID(), () -> {
             shopItems = ShopMod.INSTANCE.getShopItemManager().getItemListByCategory(category);
             period = System.currentTimeMillis() - l;
-            System.out.println("Запрос обработан. Отсылаю ответ...");
+            System.out.println("Request processed. Sending the result back to the client side...");
             packetCallbackSender.send();
         });
     }
@@ -34,7 +34,7 @@ public class PacketShopCategoryGetOnServer implements IPacketCallbackOnServer {
     @Override
     public void write(EntityPlayerMP entityPlayer, ByteBufOutputStream bbos) throws IOException {
         writeObjects(bbos, shopItems);
-        bbos.writeUTF("Обработка запроса заняла " + period + " миллисекунд");
+        bbos.writeUTF("The processing of request took " + period + " millis");
     }
 
     @Override

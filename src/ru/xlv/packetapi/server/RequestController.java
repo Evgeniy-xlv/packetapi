@@ -4,13 +4,13 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Инструмент для управления обработкой запросов.
+ * The tool for managing request processing.
  * <p>
- * Следует использовать для отклонения выполнения нежелательных пакетов при определенных условиях.
+ * Should be used to reject execution of unwanted packages under certain conditions.
  * <p>
- * - {@link Limited} позволит отсекать запросы, если их общее количество в очереди превышает допустимый уровень.
+ * - {@link Limited} will allow you to reject requests if their total number in the queue exceeds the allowed level.
  * <p>
- * - {@link Periodic} позволит отсекать запросы, если их частота превышает допустимый период.
+ * - {@link Periodic} will allow you to reject requests if their frequency exceeds the allowed period.
  * */
 public abstract class RequestController<T> {
 
@@ -22,9 +22,8 @@ public abstract class RequestController<T> {
     private RequestController() {}
 
     /**
-     * Позволяет исполнить код, если это допускается контроллером.
-     * @param key ключ запроса.
-     * @param runnable будет выполнен в случае успешной проверки контроллером.
+     * Executes a task synchronously if allowed by the controller.
+     * @param key a unique key for the request type.
      * */
     public boolean doRequestSync(T key, Runnable runnable) {
         if(!tryRequest(key)) return false;
@@ -33,9 +32,8 @@ public abstract class RequestController<T> {
     }
 
     /**
-     * Позволяет исполнить код асинхронно, если это допускается контроллером.
-     * @param key ключ запроса.
-     * @param runnable будет выполнен в случае успешной проверки контроллером.
+     * Executes a task asynchronously when allowed by the controller.
+     * @param key a unique key for the request type.
      * */
     public void doCompletedRequestAsync(T key, Runnable runnable) {
         if (!tryRequest(key)) {
@@ -56,7 +54,7 @@ public abstract class RequestController<T> {
     }
 
     /**
-     * @return true, если запрос с входным ключом может быть совершен в данный момент.
+     * @return true if a request with the specified key can be made at the moment.
      * */
     public boolean tryRequest(T key) {
         Request request;
@@ -114,7 +112,7 @@ public abstract class RequestController<T> {
     }
 
     /**
-     * Данный контроллер позволяет отсекать запросы, если их общее количество в очереди превышает допустимый уровень.
+     * This controller will allows you to reject requests if their total number in the queue exceeds the allowed level.
      * */
     public static class Limited<T> extends RequestController<T> {
 
@@ -163,12 +161,12 @@ public abstract class RequestController<T> {
     }
 
     /**
-     * Данный контроллер позволяет отсекать запросы, если их частота превышает допустимый период.
+     * This controller will allow you to reject requests if their frequency exceeds the allowed period.
      * */
     public static class Periodic<T> extends RequestController<T> {
 
         /**
-         * Указывается в миллисекундах
+         * Specifies in millis
          * */
         protected long requestPeriod = 1000L;
 

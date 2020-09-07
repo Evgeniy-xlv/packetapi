@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Устанавливает вызов метода записи для пакета в асинхронном порядке.
+ * Sets a call to the write method for the packet asynchronously.
  * */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

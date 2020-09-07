@@ -1,15 +1,15 @@
 package ru.xlv.packetapi.server.packet;
 
 /**
- * Служит как инструмент для ручного управления отправкой пакета обратно на клиент.
+ * Serves as a tool for manually managing sending a packet back to the client.
  * <p>
- * Применим при асинхронной работе с пакетом, либо при использовании {@link ru.xlv.packetapi.server.RequestController}.
+ * It is applicable when working with a packet asynchronously, or when using {@link ru.xlv.packetapi.server.RequestController}.
  * */
 public interface PacketCallbackSender {
 
     /**
-     * Позволяет отослать пакет в тот же момент.
-     * Советую всегда лишний раз убеждаться, что вы не вызвали метод дважды.
+     * Sends a packet at the same time.
+     * I advise you to always make sure that you don't call the method twice.
      * */
     void send();
 }

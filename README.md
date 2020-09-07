@@ -1,12 +1,36 @@
-# PacketAPI для Minecraft.
+# PacketAPI is designed to make networking easier in Minecraft. Briefly:
 
-Возможности:
+- Make life easier for yourself and get rid of the need to create a handler for each packet, while maintaining OOP style and synchronization of handling
+- Register packets without the need to specify descriminators and other things
+- Callbacks. Send the request to the server and wait for the response asynchronously, and then process the result synchronously, all in one line of code
+- Control over packets. Suppress spam of packets with one annotation
+- Use convenient PacketHandlers, which contain a set of popular methods for sending data to and fro
+- Convert Object <-> byte [] without pain
+- Work with both ForgeClient <-> ForgeServer and ForgeClient <-> BukkitAPI
+- Lazy data sending without packets
 
-- Облегчите себе жизнь и избавьтесь от создания обработчика для каждого пакета, при этом сохраняя ООП стиль и синхронность обработки
-- Регистрируйте пакеты без надобности указывать дескриминаторы и прочий блудняк
-- Колбэки. Отсылайте запрос серверу и ждите ответа асинхронно, а затем обрабатывайте результат синхронно и все это в одной строчке кода
-- Контроль над пакетами. Подавляйте спам пакетами одной аннотацией
-- Используйте удобные PacketHandler'ы, содержащие набор популярных методов для отправки данных туда и сюда
-- Конвертируйте Object <-> byte[] без боли
-- Работайте как с ForgeClient <-> ForgeServer, так и ForgeClient <-> BukkitAPI
+```java
+packetHandler.sendPacketEffectiveCallback(new MyMathQuestion("2 * 2 = 4 ?"))
+    .thenAcceptSync(result -> {
+        if(result.isTrue()) {
+            sout("Success");
+        } else {
+            sout("Failure");
+        }
+    });
+```
 
+```java
+// writing
+void write(EntityPlayerMP entityPlayer, ByteBufOutputStream bbos) throws IOException {
+    ShopCategory category = new ShopCategory();
+    for (int i = 0; i < ; i++) {
+        category.add(new ShopItem("Name", 1000));
+    }
+    writeObject(bbos, category);
+}
+// reading
+void read(ByteBufInputStream bbis) throws IOException {
+    ShopCategory category = readObject(bbis, ShopCategory.class);
+}
+```

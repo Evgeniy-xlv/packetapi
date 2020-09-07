@@ -9,28 +9,28 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Избавляет от лишнего написания {@link RequestController} в каждом пакете.
- * Вместо этого достаточно пометить класс аннотацией и для нее автоматически сгенерируется новый контроллер с заданными параметрами.
+ * Eliminates unnecessary writing a {@link RequestController} in each packet.
+ * Instead, it is enough to mark the class with an annotation and a new controller with the specified parameters will be automatically generated for it.
  *
- * Важно понимать, что если обработка пакета была отклонена подобным контроллером,
- * метод {@link IPacketInOnServerRaw#read(Object, ByteBufInputStream)} не будет вызван.
+ * It is important to understand that if the processing of a packet was rejected by such a controller,
+ * the method {@link IPacketInOnServerRaw#read(Object, ByteBufInputStream)} will not be called.
  * */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ControllablePacket {
 
     /**
-     * Допустимый период для {@link RequestController.Periodic}
+     * Permissible period for {@link RequestController.Periodic}
      * */
     long period() default -1;
 
     /**
-     * Допустимый лимит для {@link RequestController.Limited}
+     * Permissible limit for {@link RequestController.Limited}
      * */
     int limit() default -1;
 
     /**
-     * Позволяет вызывать метод записи у пакета, даже если запрос был отклонен контроллером.
+     * Allows to call the write method of packet, even if the request was denied by the controller.
      * */
     boolean callWriteAnyway() default false;
 }

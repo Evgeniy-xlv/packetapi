@@ -1,6 +1,7 @@
 package ru.xlv.packetapi;
 
 import ru.xlv.packetapi.capability.ICapabilityAdapter;
+import ru.xlv.packetapi.common.composable.ComposableCatcherBus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,8 +10,6 @@ import java.util.Enumeration;
 import java.util.jar.Manifest;
 
 public class PacketAPI {
-
-    public static final PacketAPI INSTANCE = new PacketAPI();
 
     static {
         try {
@@ -30,26 +29,37 @@ public class PacketAPI {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (INSTANCE.getCapabilityAdapter() == null) {
+        if (getCapabilityAdapter() == null) {
             initCapabilityAdapter(System.getProperty("ru.xlv.packetapi.gameVersion"));
         }
     }
 
-    private ICapabilityAdapter capabilityAdapter;
+    private static ICapabilityAdapter capabilityAdapter;
+    private static final ComposableCatcherBus COMPOSABLE_CATCHER_BUS = new ComposableCatcherBus();
+
+    private static final String API_DEFAULT_CHANNEL_NAME = "packetapi";
 
     private PacketAPI() {}
 
-    public void setCapabilityAdapter(ICapabilityAdapter capabilityAdapter) {
-        this.capabilityAdapter = capabilityAdapter;
+    public static void setCapabilityAdapter(ICapabilityAdapter capabilityAdapter) {
+        PacketAPI.capabilityAdapter = capabilityAdapter;
     }
 
-    public ICapabilityAdapter getCapabilityAdapter() {
+    public static ICapabilityAdapter getCapabilityAdapter() {
         return capabilityAdapter;
+    }
+
+    public static ComposableCatcherBus getComposableCatcherBus() {
+        return COMPOSABLE_CATCHER_BUS;
+    }
+
+    public static String getApiDefaultChannelName() {
+        return API_DEFAULT_CHANNEL_NAME;
     }
 
     private static void initCapabilityAdapter(String gameVersion) {
         try {
-            INSTANCE.setCapabilityAdapter((ICapabilityAdapter) Class.forName("ru.xlv.packetapi.capability.CapabilityAdapter" + gameVersion.replace(".", "_")).newInstance());
+            setCapabilityAdapter((ICapabilityAdapter) Class.forName("ru.xlv.packetapi.capability.CapabilityAdapter" + gameVersion.replace(".", "_")).newInstance());
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

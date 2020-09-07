@@ -3,7 +3,7 @@ package ru.xlv.packetapi.example.bukkit;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import ru.xlv.packetapi.client.PacketHandlerClient;
-import ru.xlv.packetapi.common.PacketRegistry;
+import ru.xlv.packetapi.common.registry.PacketRegistry;
 
 @Mod(
         modid = "timesenderexample"
