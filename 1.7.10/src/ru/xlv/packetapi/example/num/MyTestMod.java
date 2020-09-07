@@ -37,8 +37,8 @@ public class MyTestMod {
         if(Keyboard.getEventKeyState() && Keyboard.isKeyDown(Keyboard.KEY_P)) {
             int v = new Random().nextInt(10);
             System.out.println(String.format("Sending a number о %s for verification to the server side...", v));
-            packetHandlerClient.sendPacketEffectiveCallback(new MyTestCallback(v))
-                    .thenAcceptSync(result -> {
+            packetHandlerClient.sendCallback(new MyTestCallback(v))
+                    .onResult(result -> {
                         if (result.isSuccess()) {
                             System.out.println("Success!");
                         } else {

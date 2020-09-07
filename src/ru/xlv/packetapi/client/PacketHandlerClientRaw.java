@@ -93,12 +93,21 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
             packetCallback = callbackMap.remove(callbackId);
         }
         if (packetCallback != null) {
-            packetCallback.read(bbis);
-            if(packetCallback instanceof IPacketCallbackEffective) {
-                synchronized (callbackResultMap) {
-                    //noinspection rawtypes
-                    callbackResultMap.put(callbackId, ((IPacketCallbackEffective) packetCallback).getResult());
+            try {
+                packetCallback.read(bbis);
+                if (packetCallback instanceof IPacketCallbackEffective) {
+                    synchronized (callbackResultMap) {
+                        // noinspection rawtypes
+                        callbackResultMap.put(callbackId, ((IPacketCallbackEffective) packetCallback).getResult());
+                    }
                 }
+            } catch (IOException e) {
+                if (packetCallback instanceof IPacketCallbackEffective) {
+                    synchronized (callbackResultMap) {
+                        callbackResultMap.put(callbackId, e);
+                    }
+                }
+                throw e;
             }
         }
     }
@@ -158,14 +167,46 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
     }
 
     /**
+     * @deprecated it will be removed in the next versions. Use {@link PacketHandlerClientRaw#sendCallback(IPacketCallbackEffective)}.
+     * */
+    @Deprecated
+    public <T> CallbackResponseHandler<T> sendPacketEffectiveCallback(@Nonnull IPacketCallbackEffective<T> packet) {
+        return sendCallback(packet);
+    }
+
+    /**
+     * @deprecated it will be removed in the next versions. Use {@link PacketHandlerClientRaw#sendCallback(IPacketCallbackEffective, boolean)}.
+     * */
+    @Deprecated
+    public <T> CallbackResponseHandler<T> sendPacketEffectiveCallback(@Nonnull IPacketCallbackEffective<T> packet, boolean checkNonNullResult) {
+        return sendCallback(packet, checkNonNullResult);
+    }
+
+    /**
+     * @deprecated it will be removed in the next versions. Use {@link PacketHandlerClientRaw#sendCallbackAsync(IPacketCallbackEffective)}.
+     * */
+    @Deprecated
+    public <T> CompletableFuture<CallbackResponseResult<T>> sendPacketCallbackAsync(@Nonnull IPacketCallbackEffective<T> packet) {
+        return sendCallbackAsync(packet);
+    }
+
+    /**
+     * @deprecated it will be removed in the next versions. Use {@link PacketHandlerClientRaw#sendCallbackAsync(IPacketCallbackEffective)}.
+     * */
+    @Deprecated
+    public <T> CompletableFuture<CallbackResponseResult<T>> sendPacketCallbackAsync(@Nonnull IPacketCallbackEffective<T> packet, long checkResultPeriod) {
+        return sendCallbackAsync(packet, checkResultPeriod);
+    }
+
+    /**
      * Sends a packet, that calls the {@link IPacketCallbackEffective#read(ByteBufInputStream)} method,
      * when(if) the server sends a response packet with the same packetId and callbackId back to the client.
      *
-     * @return {@link SyncResultHandler}, which lets the response to be processed synchronously on the main thread.
-     * The returned {@link SyncResultHandler} contains a not null result.
+     * @return {@link CallbackResponseHandler}, which lets the response to be processed synchronously on the main thread.
+     * The returned {@link CallbackResponseHandler} contains a not null result.
      * */
-    public <T> SyncResultHandler<T> sendPacketEffectiveCallback(@Nonnull IPacketCallbackEffective<T> packet) {
-        return new SyncResultHandler<>(sendPacketCallbackAsync(packet));
+    public <T> CallbackResponseHandler<T> sendCallback(@Nonnull IPacketCallbackEffective<T> packet) {
+        return new CallbackResponseHandler<>(sendCallbackAsync(packet));
     }
 
     /**
@@ -173,10 +214,10 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
      * when(if) the server sends a response packet with the same packetId and callbackId back to the client.
      *
      * @param checkNonNullResult lets you check if the result is null
-     * @return {@link SyncResultHandler}, which lets the response to be processed synchronously on the main thread.
+     * @return {@link CallbackResponseHandler}, which lets the response to be processed synchronously on the main thread.
      * */
-    public <T> SyncResultHandler<T> sendPacketEffectiveCallback(@Nonnull IPacketCallbackEffective<T> packet, boolean checkNonNullResult) {
-        return new SyncResultHandler<>(sendPacketCallbackAsync(packet), checkNonNullResult);
+    public <T> CallbackResponseHandler<T> sendCallback(@Nonnull IPacketCallbackEffective<T> packet, boolean checkNonNullResult) {
+        return new CallbackResponseHandler<>(sendCallbackAsync(packet), checkNonNullResult);
     }
 
     /**
@@ -186,8 +227,8 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
      * @return {@link CompletableFuture}, which will be contain the response from the server, or null if no response
      * was received or was improperly constructed.
      * */
-    public <T> CompletableFuture<T> sendPacketCallbackAsync(@Nonnull IPacketCallbackEffective<T> packet) {
-        return sendPacketCallbackAsync(packet, defaultCheckResultPeriod);
+    public <T> CompletableFuture<CallbackResponseResult<T>> sendCallbackAsync(@Nonnull IPacketCallbackEffective<T> packet) {
+        return sendCallbackAsync(packet, defaultCheckResultPeriod);
     }
 
     /**
@@ -199,15 +240,20 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
      * @return {@link CompletableFuture}, which will be contain the response from the server, or null if no response
      * was received or was improperly constructed.
      * */
-    public <T> CompletableFuture<T> sendPacketCallbackAsync(@Nonnull IPacketCallbackEffective<T> packet, long checkResultPeriod) {
+    public <T> CompletableFuture<CallbackResponseResult<T>> sendCallbackAsync(@Nonnull IPacketCallbackEffective<T> packet, long checkResultPeriod) {
         final int id = sendPacketCallback(packet);
         return CompletableFuture.supplyAsync(() -> {
             long l = System.currentTimeMillis() + callbackResultWaitTimeout;
             while (true) {
                 synchronized (callbackResultMap) {
                     if (callbackResultMap.containsKey(id)) {
-                        //noinspection unchecked
-                        return (T) callbackResultMap.remove(id);
+                        Object remove = callbackResultMap.remove(id);
+                        if(remove instanceof Exception) {
+                            return new CallbackResponseResult<>(null, CallbackResponseResult.State.EXCEPTION);
+                        } else {
+                            //noinspection unchecked
+                            return new CallbackResponseResult<>((T) remove, CallbackResponseResult.State.CONSTRUCTED);
+                        }
                     }
                 }
                 if (System.currentTimeMillis() >= l) {
@@ -220,7 +266,7 @@ public class PacketHandlerClientRaw<PLAYER> extends PacketHandler<PLAYER> {
                     e.printStackTrace();
                 }
             }
-            return null;
+            return new CallbackResponseResult<>(null, CallbackResponseResult.State.TIME_OUT);
         }, executorService);
     }
 

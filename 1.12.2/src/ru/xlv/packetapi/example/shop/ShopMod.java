@@ -51,13 +51,15 @@ public class ShopMod {
                 category.append(categoryChars.charAt(random.nextInt(categoryChars.length())));
             }
             System.out.println("Sending a request to the server for shop items by category: " + category.toString());
-            packetHandlerClient.sendPacketEffectiveCallback(new PacketShopCategoryGet(category.toString()))
-                    .thenAcceptSync(result -> {
+            packetHandlerClient.sendCallback(new PacketShopCategoryGet(category.toString()))
+                    .onResult(result -> {
                         // it will happen when a callback will return back with the result to the client side
                         System.out.println("The incoming set of shop items:");
                         result.getShopItemList().forEach(System.out::println);
                         System.out.println("The message from the server: " + result.getResponseMessage());
-                    });
+                    })
+                    .onTimeout(() -> System.out.println("timeout"))
+                    .onException(() -> System.out.println("exception"));
         }
     }
 

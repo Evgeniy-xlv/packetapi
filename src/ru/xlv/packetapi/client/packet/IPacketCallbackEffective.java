@@ -1,6 +1,7 @@
 package ru.xlv.packetapi.client.packet;
 
 import io.netty.buffer.ByteBufOutputStream;
+import ru.xlv.packetapi.client.CallbackResponseHandler;
 import ru.xlv.packetapi.common.packet.IPacketCallback;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
@@ -10,7 +11,7 @@ import java.io.IOException;
 /**
  * The main type of request that returns a result as a specified data type.
  * <p>
- * Should be used in conjunction with {@link ru.xlv.packetapi.client.SyncResultHandler}.
+ * Should be used in conjunction with {@link CallbackResponseHandler}.
  *
  * Usage example:
  * <pre>
