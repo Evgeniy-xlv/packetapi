@@ -10,14 +10,16 @@
 - Lazy data sending without packets
 
 ```java
-packetHandler.sendPacketEffectiveCallback(new MyMathQuestion("2 * 2 = 4 ?"))
-    .thenAcceptSync(result -> {
+packetHandler.sendCallback(new MyMathQuestion("2 * 2 = 4 ?"))
+    .onResult(result -> {
         if(result.isTrue()) {
             sout("Success");
         } else {
             sout("Failure");
         }
-    });
+    })
+    .onTimeout(() -> sout("TIMEOUT"))
+    .onException(() -> sout("EXCEPTION"));
 ```
 
 ```java
