@@ -35,6 +35,6 @@ jar {
                 'Author': 'Xlv',
         )
     }
-//    exclude 'ru/xlv/packetapi/example'
-//    exclude 'plugin.yml'
+    exclude 'ru/xlv/packetapi/example'
+    exclude 'plugin.yml'
 }
