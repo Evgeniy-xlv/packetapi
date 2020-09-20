@@ -1,6 +1,6 @@
 package ru.xlv.packetapi.client;
 
-class CallbackResponseResult<T> {
+public class CallbackResponseResult<T> {
 
     private final T result;
     private final State state;
@@ -10,15 +10,15 @@ class CallbackResponseResult<T> {
         this.state = state;
     }
 
-    State getState() {
+    public State getState() {
         return state;
     }
 
-    T getResult() {
+    public T getResult() {
         return result;
     }
 
-    enum State {
+    public enum State {
         CONSTRUCTED,
         TIME_OUT,
         EXCEPTION
