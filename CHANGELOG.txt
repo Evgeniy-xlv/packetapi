@@ -1,0 +1,30 @@
+1.2.0
+- project reworked;
+- some classes were renamed;
+- new feature: automatic registration of packets;
+- reworked the process of packet sending;
+- new tool: Sender.class provides an easy and convenient way to send packets/callbacks/composable;
+- reworked the process of packet registration;
+- removed all deprecated methods and classes;
+- fixes and code improves;
+
+1.1.2
+- minor fixes;
+
+1.1.1
+- SyncResultHandler has been renamed to CallbackResponseHandler;
+- added new useful methods to CallbackResponseHandler to handle a timeout and an exception;
+- some methods in PacketHandlerClientRaw have been renamed. The old methods are still there, but they are marked as deprecated and will be - removed in the next versions;
+- small code refactoring;
+
+1.1.0
+- new feature: Composable objects;
+- new feature: lazy data sending;
+- fixes and code improves;
+
+1.0.1
+- introduced a multi-modular architecture in favor of supporting all versions of the game;
+- added support of v1.7.10;
+- fixed a bug with inability to work with the IPacket#writeObject and IPacket#readObject methods;
+- fixed a bug with inability to use @ControllablePacket#callWriteAnyway;
+- minor fixes and code improves;

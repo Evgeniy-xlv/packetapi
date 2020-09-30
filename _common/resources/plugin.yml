@@ -1,0 +1,5 @@
+name: PacketApiPlugin
+main: ru.xlv.packetapi.server.bukkit.PacketAPIBukkitPlugin
+version: @PACKET_API_VERSION@
+author: Xlv
+description: API for convenient work with network in minecraft.

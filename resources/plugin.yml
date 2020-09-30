@@ -1,5 +1,0 @@
-name: PacketApiPlugin
-main: ru.xlv.packetapi.example.bukkit.OnlineTimeSenderPlugin
-version: 1.0.0
-author: Xlv
-description: API for convenient work with network in minecraft.

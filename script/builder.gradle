@@ -1,0 +1,123 @@
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
+
+task defineSupportedGameVersions {
+    doLast {
+        List<String> versions = new ArrayList<>()
+        rootProject.getAllprojects().forEach({ project ->
+            DomainObjectSet<ProjectDependency> projectDependencies = project.getConfigurations().compile.dependencies.withType ProjectDependency
+            projectDependencies.forEach {
+                if(it.dependencyProject.getName() == '_common') {
+                    versions.add(project.getName())
+                }
+            }
+        })
+        System.setProperty("ru.xlv.packetapi.capability.supportedGameVersions", versions.toString())
+    }
+}
+
+task assembleFinalArtifact {
+    doLast {
+        File tempDir = new File(rootProject.buildDir, 'temp')
+        File artifactsDir = new File(tempDir, 'artifacts')
+        println 'building...'
+        rootProject.getAllprojects().forEach({ project ->
+            DomainObjectSet<ProjectDependency> projectDependencies = project.getConfigurations().compile.dependencies.withType ProjectDependency
+            projectDependencies.forEach {
+                print "${project} depends on project + ${it.dependencyProject}."
+                if(project.getName() == '_common' || it.dependencyProject.getName() == '_common') {
+                    println " it's a target project."
+                    copy {
+                        from new File(project.buildDir, 'libs')
+                        include "${project.archivesBaseName}.jar"
+                        into artifactsDir
+                    }
+                }
+            }
+        })
+        File classesDir = new File(tempDir, 'classes')
+        classesDir.mkdirs()
+        for(File file : artifactsDir.listFiles()) {
+            println "unzipping file ${file}"
+            unzip(file, classesDir)
+        }
+        File file = new File(rootProject.buildDir, "libs/${rootProject.archivesBaseName}.jar")
+        if(file.exists()) {
+            file.delete()
+        }
+        file.createNewFile()
+        println "zipping build file ${file}"
+        zipDir(file, classesDir)
+        delete tempDir
+        println 'building completed.'
+    }
+}
+
+private static void zipDir(File zipFile, File dir) {
+    FileOutputStream fos = new FileOutputStream(zipFile)
+    ZipOutputStream zipOut = new ZipOutputStream(fos)
+    for(File file : dir.listFiles()) {
+        doZipFile(file, file.getName(), zipOut)
+    }
+    zipOut.close()
+    fos.close()
+}
+
+private static void doZipFile(File fileToZip, String fileName, ZipOutputStream zipOut) {
+    if (fileToZip.isDirectory()) {
+        if (fileName.endsWith("/")) {
+            zipOut.putNextEntry(new ZipEntry(fileName))
+            zipOut.closeEntry()
+        } else {
+            zipOut.putNextEntry(new ZipEntry(fileName + "/"))
+            zipOut.closeEntry()
+        }
+        File[] children = fileToZip.listFiles()
+        for (File childFile : children) {
+            doZipFile(childFile, fileName + "/" + childFile.getName(), zipOut)
+        }
+        return
+    }
+    FileInputStream fis = new FileInputStream(fileToZip)
+    ZipEntry zipEntry = new ZipEntry(fileName)
+    zipOut.putNextEntry(zipEntry)
+    byte[] bytes = new byte[1024]
+    int length
+    while ((length = fis.read(bytes)) >= 0) {
+        zipOut.write(bytes, 0, length)
+    }
+    fis.close()
+}
+
+private static void unzip(File zippedFile, File destDir) {
+    byte[] buffer = new byte[1024]
+    ZipInputStream zis = new ZipInputStream(new FileInputStream(zippedFile))
+    ZipEntry zipEntry = zis.getNextEntry()
+    while (zipEntry != null) {
+        File newFile = newFile(destDir, zipEntry)
+        if(!zipEntry.isDirectory()) {
+            FileOutputStream fos = new FileOutputStream(newFile)
+            int len
+            while ((len = zis.read(buffer)) > 0) {
+                fos.write(buffer, 0, len)
+            }
+            fos.close()
+        } else {
+            newFile.mkdirs()
+        }
+        zipEntry = zis.getNextEntry()
+    }
+    zis.closeEntry()
+    zis.close()
+}
+
+private static File newFile(File destinationDir, ZipEntry zipEntry) {
+    File destFile = new File(destinationDir, zipEntry.getName())
+    String destDirPath = destinationDir.getCanonicalPath()
+    String destFilePath = destFile.getCanonicalPath()
+    if (!destFilePath.startsWith(destDirPath + File.separator)) {
+        throw new IOException("Entry is outside of the target dir: " + zipEntry.getName())
+    }
+    return destFile
+}

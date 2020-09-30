@@ -1,0 +1,36 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply from: rootProject.file('build.gradle')
+
+sourceSets.main.java.srcDir(rootProject.file('src'))
+sourceSets.main.resources.srcDir(rootProject.file('resources'))
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.15.2-31.1.46'
+    compile rootProject
+}
+
+minecraft {
+    mappings channel: 'snapshot', version: '20200112-1.14.3'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+        server {
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}

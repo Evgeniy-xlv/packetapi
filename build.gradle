@@ -1,40 +1,7 @@
 apply plugin: 'java'
 
 group = 'ru.xlv'
-archivesBaseName = "packetapi-${gameVersion}-${libVersion}"
+archivesBaseName = "packetapi-${libVersion}"
 
 sourceCompatibility = targetCompatibility =  '1.8'
 compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
-
-sourceSets {
-    test.java.srcDir 'test'
-    main.java.srcDir 'src'
-    main.resources.srcDir 'resources'
-}
-
-repositories {
-    mavenCentral()
-    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
-}
-
-dependencies {
-    compile group: 'net.sf.trove4j', name: 'trove4j', version: '3.0.3'
-    compile group: 'io.netty', name: 'netty-all', version: '4.0.10.Final'
-    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '1.3.9'
-    compile group: 'com.google.guava', name: 'guava', version: '17.0'
-    compileOnly group: 'org.bukkit', name: 'bukkit', version: '1.12.2-R0.1-SNAPSHOT'
-}
-
-jar {
-    manifest {
-        attributes(
-                'Name': 'PacketAPI',
-                'Description': 'API for convenient work with network in minecraft.',
-                'Version': libVersion,
-                'PacketAPI_GameVersion': gameVersion,
-                'Author': 'Xlv',
-        )
-    }
-    exclude 'ru/xlv/packetapi/example'
-    exclude 'plugin.yml'
-}

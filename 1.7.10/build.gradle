@@ -18,18 +18,31 @@ buildscript {
 
 apply plugin: 'forge'
 apply plugin: 'idea'
-apply from: rootProject.file('build.gradle')
 
-sourceSets.main.java.srcDir(rootProject.file('src'))
-sourceSets.main.resources.srcDir(rootProject.file('resources'))
+sourceCompatibility = targetCompatibility =  '1.8'
+compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
+
+sourceSets.main.java.srcDir 'src'
 
 idea.module.inheritOutputDirs = false
 
+repositories {
+    mavenCentral()
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
+}
+
 dependencies {
-    compile rootProject
+    compileOnly group: 'org.bukkit', name: 'bukkit', version: '1.12.2-R0.1-SNAPSHOT'
+    compile (project(':_common')) {
+        exclude module: '_minecraft'
+    }
 }
 
 minecraft {
     version = '1.7.10-10.13.4.1614-1.7.10'
     runDir = "run"
+}
+
+jar {
+    exclude 'ru/xlv/packetapi/example'
 }

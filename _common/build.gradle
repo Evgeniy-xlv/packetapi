@@ -1,0 +1,65 @@
+buildscript {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath group: 'com.github.hexomod', name: 'ReplaceTokenPreprocessor', version: '0.2'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'com.github.hexomod.replace.token.preprocessor'
+apply from: file(rootDir.getAbsolutePath() + '/script/builder.gradle')
+
+sourceSets.main.java.srcDir('src')
+sourceSets.test.java.srcDir('test')
+sourceSets.main.resources.srcDir('resources')
+
+sourceCompatibility = targetCompatibility =  '1.8'
+compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
+
+archivesBaseName = 'common'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
+}
+
+dependencies {
+    compile group: 'net.sf.trove4j', name: 'trove4j', version: '3.0.3'
+    compile group: 'io.netty', name: 'netty-all', version: '4.0.10.Final'
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '1.3.9'
+    compile group: 'com.google.guava', name: 'guava', version: '17.0'
+    compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
+    compileOnly group: 'org.bukkit', name: 'bukkit', version: '1.12.2-R0.1-SNAPSHOT'
+
+    compile project(':_minecraft')
+}
+
+jar {
+    doFirst {
+        def versions = System.getProperty("ru.xlv.packetapi.capability.supportedGameVersions")
+        if(versions == null) {
+            versions = ""
+        }
+        println System.getProperty("ru.xlv.packetapi.capability.supportedGameVersions")
+        manifest {
+            attributes(
+                    'Name': 'PacketAPI',
+                    'Description': 'API for convenient work with network in minecraft.',
+                    'Version': libVersion,
+                    'PacketAPI_GameVersions': versions,
+                    'Author': 'Xlv',
+            )
+        }
+    }
+    exclude 'ru/xlv/packetapi/test'
+}
+
+replaceTokenPreprocessorSettings {
+    replace '@PACKET_API_VERSION@': libVersion
+    replace '@PACKET_API_NAME@': 'packetapi'
+}
+
+build.finalizedBy assembleFinalArtifact
+jar.dependsOn defineSupportedGameVersions

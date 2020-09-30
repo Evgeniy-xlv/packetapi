@@ -10,14 +10,23 @@ buildscript {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-apply from: rootProject.file('build.gradle')
 
-sourceSets.main.java.srcDir(rootProject.file('src'))
-sourceSets.main.resources.srcDir(rootProject.file('resources'))
+sourceCompatibility = targetCompatibility =  '1.8'
+compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
+
+sourceSets.main.java.srcDir 'src'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
+}
 
 dependencies {
+    compileOnly group: 'org.bukkit', name: 'bukkit', version: '1.12.2-R0.1-SNAPSHOT'
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
-    compile rootProject
+    compile (project(':_common')) {
+        exclude module: '_minecraft'
+    }
 }
 
 minecraft {
@@ -33,4 +42,8 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
         }
     }
+}
+
+jar {
+    exclude 'ru/xlv/packetapi/example'
 }
