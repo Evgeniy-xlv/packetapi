@@ -104,7 +104,7 @@ Add following lines to **build.gradle**:
     
     dependencies {
         compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
-        compile group: 'com.github.Evgeniy-Xlv' name:'packetapi' version:'1.12.2-1.2.0'
+        compile group: 'com.github.Evgeniy-Xlv' name:'packetapi' version:'1.2.0'
     }
 ```
 
@@ -122,7 +122,7 @@ Add folowing lines to **pom.xml**:
     <dependency>
         <groupId>com.github.Evgeniy-Xlv</groupId>
         <artifactId>packetapi</artifactId>
-        <version>1.12.2-1.2.0</version>
+        <version>1.2.0</version>
     </dependency>
 ```
 
