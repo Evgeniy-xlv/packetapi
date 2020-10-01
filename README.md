@@ -119,11 +119,18 @@ Add folowing lines to **pom.xml**:
         </repository>
     </repositories>
     
-    <dependency>
-        <groupId>com.github.Evgeniy-Xlv</groupId>
-        <artifactId>packetapi</artifactId>
-        <version>1.2.0</version>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Evgeniy-Xlv</groupId>
+            <artifactId>packetapi</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+    </dependencies>
 ```
 
 ## Dependencies
