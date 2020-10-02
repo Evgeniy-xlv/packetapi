@@ -17,11 +17,29 @@ public interface IAutoRegPacketScanner {
         for (String s : list) {
             scanThenRegister(s);
         }
+        List<Class<?>> list1 = annotation.classes().length > 0 ? Arrays.asList(annotation.classes()) : Collections.emptyList();
+        for (Class<?> aClass : list1) {
+            register(aClass);
+        }
     }
 
-    void scanThenRegister(@Nonnull String path);
+    void register(Class<?> packetClass);
 
-    default Set<Class<?>> scanPacketClasses(String path) {
+    default void scanThenRegister(@Nonnull String path) {
+        LOGGER.info("Scanning " + path + " for packets...");
+        scanForPacketClasses(path)
+                .stream()
+                .sorted((o1, o2) -> {
+                    AutoRegPacket annotation = o1.getAnnotation(AutoRegPacket.class);
+                    AutoRegPacket annotation1 = o2.getAnnotation(AutoRegPacket.class);
+                    String a = !annotation.registryName().equals("") ? annotation.registryName() : o1.getName();
+                    String b = !annotation1.registryName().equals("") ? annotation1.registryName() : o2.getName();
+                    return a.compareTo(b);
+                })
+                .forEach(this::register);
+    }
+
+    default Set<Class<?>> scanForPacketClasses(String path) {
         try {
             Class.forName("org.reflections.Reflections");
             return new ReflectionsAnnotationScanner().scanPacketClasses(path);

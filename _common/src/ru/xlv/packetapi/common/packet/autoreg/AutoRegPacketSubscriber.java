@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 public @interface AutoRegPacketSubscriber {
 
     String[] packages() default {};
+
+    Class<?>[] classes() default {};
 }
