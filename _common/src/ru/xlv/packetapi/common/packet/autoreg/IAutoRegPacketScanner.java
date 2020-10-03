@@ -1,10 +1,7 @@
 package ru.xlv.packetapi.common.packet.autoreg;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 public interface IAutoRegPacketScanner {
@@ -43,9 +40,8 @@ public interface IAutoRegPacketScanner {
         try {
             Class.forName("org.reflections.Reflections");
             return new ReflectionsAnnotationScanner().scanPacketClasses(path);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (ClassNotFoundException ignored) {
         }
-        throw new RuntimeException("UnexpectedError caught! Couldn't scan classes for annotations. Please, install the Reflections library.");
+        return new HashSet<>();
     }
 }
