@@ -37,6 +37,7 @@ import java.util.stream.Stream;
         name = PacketAPI.NAME,
         version = PacketAPI.VERSION
 )
+@VersionCheckerImpl(CapabilityAdapter1_7_10.VersionChecker.class)
 public class CapabilityAdapter1_7_10 implements ICapabilityAdapter {
 
     @Mod.EventHandler
@@ -179,6 +180,18 @@ public class CapabilityAdapter1_7_10 implements ICapabilityAdapter {
         public void sendToServer(ByteBufOutputStream byteBufOutputStream) {
             FMLProxyPacket proxyPacket = new FMLProxyPacket(new PacketBuffer(byteBufOutputStream.buffer()), channelName);
             channel.sendToServer(proxyPacket);
+        }
+    }
+
+    public static class VersionChecker implements IVersionChecker {
+        @Override
+        public boolean check() {
+            try {
+                Class.forName("cpw.mods.fml.common.network.NetworkRegistry");
+                return true;
+            } catch (ClassNotFoundException ignored) {
+            }
+            return false;
         }
     }
 }

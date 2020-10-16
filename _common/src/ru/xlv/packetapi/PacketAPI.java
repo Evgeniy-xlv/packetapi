@@ -1,6 +1,7 @@
 package ru.xlv.packetapi;
 
 import ru.xlv.packetapi.capability.ICapabilityAdapter;
+import ru.xlv.packetapi.capability.VersionCheckerImpl;
 import ru.xlv.packetapi.common.composable.ComposableCatcherBus;
 
 import java.io.IOException;
@@ -29,11 +30,16 @@ public class PacketAPI {
         if (gameVersion != null) {
             try {
                 LOGGER.info("Checking version: " + gameVersion);
-                setCapabilityAdapter((ICapabilityAdapter) Class.forName("ru.xlv.packetapi.capability.CapabilityAdapter" + gameVersion.replace(".", "_")).newInstance());
-                LOGGER.info("Success.");
+                Class<?> adapter = Class.forName("ru.xlv.packetapi.capability.CapabilityAdapter" + gameVersion.replace(".", "_"));
+                VersionCheckerImpl annotation = adapter.getAnnotation(VersionCheckerImpl.class);
+                if (annotation != null && annotation.value().newInstance().check()) {
+                    setCapabilityAdapter((ICapabilityAdapter) adapter.newInstance());
+                    LOGGER.info("Success.");
+                    return;
+                }
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ignored) {
-                LOGGER.info("Error.");
             }
+            LOGGER.info("Error.");
         }
     }
 

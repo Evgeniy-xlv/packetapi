@@ -110,7 +110,7 @@ Add following lines to **build.gradle**:
 
 ### Maven:
 
-Add folowing lines to **pom.xml**:
+Add following lines to **pom.xml**:
 ```xml
     <repositories>
         <repository>

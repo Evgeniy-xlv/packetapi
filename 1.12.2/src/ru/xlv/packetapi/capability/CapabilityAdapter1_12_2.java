@@ -34,6 +34,7 @@ import java.util.stream.Stream;
         name = PacketAPI.NAME,
         version = PacketAPI.VERSION
 )
+@VersionCheckerImpl(CapabilityAdapter1_12_2.VersionChecker.class)
 public class CapabilityAdapter1_12_2 implements ICapabilityAdapter {
 
     @Mod.EventHandler
@@ -155,5 +156,16 @@ public class CapabilityAdapter1_12_2 implements ICapabilityAdapter {
                 channel.sendToServer(proxyPacket);
             }
         };
+    }
+
+    public static class VersionChecker implements IVersionChecker {
+        @Override
+        public boolean check() {
+            try {
+                Class.forName("net/minecraftforge/fml/common/network/NetworkRegistry");
+                return true;
+            } catch (ClassNotFoundException ignored) {}
+            return false;
+        }
     }
 }

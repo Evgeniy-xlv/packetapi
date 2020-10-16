@@ -43,4 +43,8 @@ public interface ICapabilityAdapter {
     <PLAYER> Stream<PLAYER> getOnlinePlayersStream(Class<? super PLAYER> aClass);
 
     <PLAYER> AbstractNetworkAdapter<PLAYER> newNetworkAdapter(Class<? super PLAYER> aClass, String channelName, ThrConsumer<ByteBufInputStream> clientPacketReceived, ThrBiConsumer<PLAYER, ByteBufInputStream> serverPacketReceived);
+
+    interface IVersionChecker {
+        boolean check();
+    }
 }
