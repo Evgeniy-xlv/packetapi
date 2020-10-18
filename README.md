@@ -35,7 +35,7 @@ public class MyMod {
 ```
 
 ```java
-@AutoRegPacket(channelName = "test")
+@Packet
 public class MyPacket implements IPacketOutServer, IPacketInClient { 
     // writing on the server
     @Override
@@ -80,13 +80,13 @@ You can find more examples in the source code.
 * Misc tools:
     * `Composable` is a type of objects that can be sent without packets. See examples and docs for more information
     * `RequestController` is a tool for filtering and scheduling packet execution. See examples and docs for more information
-    * `AutoRegPacket` and AutoRegPacketSubscriber are annotations to automatically register your packets. See examples and docs for more information
+    * `Packet` and `PacketSubscriber` are annotations to automatically register your packets. See examples and docs for more information
 
 ## PacketAPI supports two ways to register packets
 
-* **Using annotations.** The api provides the developer with two annotations to easily register packets: `@AutoRegPacket` and `@AutoRegPacketSubscriber`
-    * `@AutoRegPacketSubscriber` annotation should mark the main class of your mod(class annotated with `@Mod`).
-    * `@AutoRegPacket` annotation should be used to mark your packets classes. See examples in the source code for more information.
+* **Using annotations.** The api provides the developer with two annotations to easily register packets: `@Packet` and `@PacketSubscriber`
+    * `@PacketSubscriber` annotation should mark the main class of your mod(class annotated with `@Mod`).
+    * `@Packet` annotation should be used to mark your packets classes. See examples in the source code for more information.
 * **Using methods of packet handlers.**
     * `PacketHandlerClient.getInstance().registerPacket(channelName, packet);`
     * `PacketHandlerServer.getInstance().registerPacket(channelName, packet);`
@@ -136,8 +136,8 @@ Add following lines to **pom.xml**:
 ## Dependencies
 
 PacketAPI depends on the [Reflections v0.9.11 library](https://mvnrepository.com/artifact/org.reflections/reflections/0.9.11) 
-for working with `@AutoRegPacket` annotations. It is an optional dependency. PacketAPI will work correctly without this dependency, 
-but `@AutoRegPacket` will not work.
+to scan packages for `@Packet` annotations. It is an optional dependency. PacketAPI will work correctly without this dependency, 
+but auto scanning will not work.
 
 ## License
 
