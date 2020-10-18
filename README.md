@@ -1,7 +1,5 @@
 # PacketAPI is designed to make networking easier in Minecraft.
 
-[![](https://jitpack.io/v/Evgeniy-Xlv/packetapi.svg)](https://jitpack.io/#Evgeniy-Xlv/packetapi)
-
 ### Briefly:
 
 * Make life easier for yourself and get rid of the need to create a handler for each packet, while maintaining OOP style and synchronization of handling
