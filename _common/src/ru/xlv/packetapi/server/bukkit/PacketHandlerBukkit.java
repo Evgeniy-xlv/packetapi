@@ -10,7 +10,7 @@ import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.common.composable.Composable;
 import ru.xlv.packetapi.common.packet.IPacket;
 import ru.xlv.packetapi.common.packet.PacketRegistrationException;
-import ru.xlv.packetapi.common.registry.PacketRegistry;
+import ru.xlv.packetapi.common.packet.registration.PacketRegistry;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 import ru.xlv.packetapi.server.IPacketHandlerServer;
 import ru.xlv.packetapi.server.RequestController;
@@ -235,7 +235,7 @@ public class PacketHandlerBukkit implements IPacketHandlerServer<Player, IPacket
         try {
             byteBufOutputStream.writeInt(-1);
             IPacket.COMPOSER.compose(composable, byteBufOutputStream);
-            sendPacketToPlayer(PacketAPI.getApiDefaultChannelName(), player, byteBufOutputStream);
+            sendPacketToPlayer(PacketAPI.DEFAULT_NET_CHANNEL_NAME, player, byteBufOutputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -322,7 +322,7 @@ public class PacketHandlerBukkit implements IPacketHandlerServer<Player, IPacket
     public static PacketHandlerBukkit getInstance() {
         if (instance == null) {
             instance = PacketAPIBukkitPlugin.getPacketHandler();
-            instance.setupNetworkChannel(PacketAPI.getApiDefaultChannelName());
+            instance.setupNetworkChannel(PacketAPI.DEFAULT_NET_CHANNEL_NAME);
             if(instance == null) {
                 throw new RuntimeException("Unexpected error! The instance of PacketHandlerBukkitServer is null.");
             }

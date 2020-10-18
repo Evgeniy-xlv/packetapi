@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.lwjgl.input.Keyboard;
-import ru.xlv.packetapi.common.packet.autoreg.AutoRegPacketSubscriber;
+import ru.xlv.packetapi.common.packet.registration.PacketSubscriber;
 import ru.xlv.packetapi.common.sender.Sender;
 
 import java.util.Random;
@@ -14,7 +14,10 @@ import java.util.Random;
 import static ru.xlv.packetapi.example.a1_12_2.shop.ShopMod.MODID;
 
 @Mod(modid = MODID)
-@AutoRegPacketSubscriber
+@PacketSubscriber(channelName = MODID, packets = {
+        PacketShopCategoryGet.class,
+        PacketShopCategoryGetOnServer.class,
+})
 public class ShopMod {
 
     static final String MODID = "exampleshopmod";

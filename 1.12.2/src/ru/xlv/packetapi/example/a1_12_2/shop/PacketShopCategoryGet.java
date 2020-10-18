@@ -2,14 +2,14 @@ package ru.xlv.packetapi.example.a1_12_2.shop;
 
 import io.netty.buffer.ByteBufOutputStream;
 import ru.xlv.packetapi.client.packet.ICallbackOut;
-import ru.xlv.packetapi.common.packet.autoreg.AutoRegPacket;
+import ru.xlv.packetapi.common.packet.registration.Packet;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 
-@AutoRegPacket(channelName = ShopMod.MODID)
+@Packet
 public class PacketShopCategoryGet implements ICallbackOut<PacketShopCategoryGet.Result> {
 
     private final Result result = new Result();

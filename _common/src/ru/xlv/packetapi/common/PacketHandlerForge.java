@@ -7,10 +7,9 @@ import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.capability.AbstractNetworkAdapter;
 import ru.xlv.packetapi.common.composable.Composer;
 import ru.xlv.packetapi.common.packet.IPacket;
-import ru.xlv.packetapi.common.registry.PacketRegistry;
+import ru.xlv.packetapi.common.packet.registration.PacketRegistry;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -25,25 +24,23 @@ public abstract class PacketHandlerForge implements IPacketHandler {
 
     private final Composer composer = IPacket.COMPOSER;
 
-    protected void createNetworkAdapter(String channelName) {
+    protected void createNetworkAdapter(String channelName, ThrConsumer<ByteBufInputStream> clientPacketReceived, ThrBiConsumer<EntityPlayer, ByteBufInputStream> serverPacketReceived) {
         getLogger().info("Trying to register a new network channel " + channelName + "...");
-        ThrConsumer<ByteBufInputStream> byteBufInputStreamThrConsumer = bbis -> onClientPacketReceived(channelName, bbis);
-        ThrBiConsumer<EntityPlayer, ByteBufInputStream> entityPlayerByteBufInputStreamThrBiConsumer = (entityPlayer, bbis) -> onServerPacketReceived(channelName, entityPlayer, bbis);
+        AbstractNetworkAdapter<EntityPlayer> networkAdapter;
         if(NETWORK_ADAPTER_REGISTRY.containsKey(channelName)) {
-            getLogger().warning("A new network channel " + channelName + " is already registered.");
-            AbstractNetworkAdapter<EntityPlayer> entityPlayerAbstractNetworkAdapter = NETWORK_ADAPTER_REGISTRY.get(channelName);
-            entityPlayerAbstractNetworkAdapter.addClientPacketReceiveListener(byteBufInputStreamThrConsumer);
-            entityPlayerAbstractNetworkAdapter.addServerPacketReceiveListener(entityPlayerByteBufInputStreamThrBiConsumer);
-            return;
+            networkAdapter = NETWORK_ADAPTER_REGISTRY.get(channelName);
+        } else {
+            networkAdapter = PacketAPI.getCapabilityAdapter().newNetworkAdapter(EntityPlayer.class, channelName);
+            NETWORK_ADAPTER_REGISTRY.put(channelName, networkAdapter);
+            getLogger().info("A new network channel " + channelName + " successfully registered.");
         }
-        AbstractNetworkAdapter<EntityPlayer> networkAdapter = PacketAPI.getCapabilityAdapter().newNetworkAdapter(EntityPlayer.class, channelName, byteBufInputStreamThrConsumer, entityPlayerByteBufInputStreamThrBiConsumer);
-        NETWORK_ADAPTER_REGISTRY.put(channelName, networkAdapter);
-        getLogger().info("A new network channel " + channelName + " successfully registered.");
+        if (clientPacketReceived != null) {
+            networkAdapter.addClientPacketReceiveListener(clientPacketReceived);
+        }
+        if (serverPacketReceived != null) {
+            networkAdapter.addServerPacketReceiveListener(serverPacketReceived);
+        }
     }
-
-    protected void onClientPacketReceived(String channelName, ByteBufInputStream bbis) throws IOException {}
-
-    protected void onServerPacketReceived(String channelName, EntityPlayer entityPlayer, ByteBufInputStream bbis) throws IOException {}
 
     protected AbstractNetworkAdapter<EntityPlayer> getNetworkAdapter(String channelName) {
         return NETWORK_ADAPTER_REGISTRY.get(channelName);

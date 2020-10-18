@@ -1,4 +1,4 @@
-package ru.xlv.packetapi.common.registry;
+package ru.xlv.packetapi.common.packet.registration;
 
 import gnu.trove.TCollections;
 import gnu.trove.map.TIntObjectMap;
@@ -38,7 +38,7 @@ public class PacketRegistry {
         for (String channel : REGISTRIES.keySet()) {
             SubPacketRegistry subPacketRegistry1 = REGISTRIES.get(channel);
             if(subPacketRegistry1.getClassRegistry().containsKey(packet.getClass())) {
-                throw new PacketRegistrationException("An instance of packet " + packet.getClass().getName() + " is already registered in channel " + channel);
+                throw new PacketRegistrationException("An error has occurred during registration of packet " + packet.getClass().getName() + " in channel " + channelName + ". It is already registered in channel " + channel);
             }
         }
         return subPacketRegistry.registerWithGeneratedId(packet);

@@ -6,12 +6,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.xlv.packetapi.common.packet.autoreg.AutoRegPacketSubscriber;
+import ru.xlv.packetapi.common.packet.registration.PacketSubscriber;
 import ru.xlv.packetapi.common.sender.Sender;
 
 import java.util.UUID;
 
-@AutoRegPacketSubscriber
+@PacketSubscriber(channelName = "timesenderexample", packets = {
+        PacketOnlineSend.class,
+        PacketOnlineReceive.class
+})
 public class OnlineTimeSenderPlugin extends JavaPlugin implements Listener {
 
     public static final TObjectLongMap<UUID> ONLINE_MAP = new TObjectLongHashMap<>();

@@ -2,26 +2,26 @@ package ru.xlv.packetapi.server.bukkit;
 
 import ru.xlv.packetapi.common.packet.IPacket;
 import ru.xlv.packetapi.common.packet.PacketRegistrationException;
-import ru.xlv.packetapi.common.packet.autoreg.AutoRegPacket;
-import ru.xlv.packetapi.common.packet.autoreg.IAutoRegPacketScanner;
+import ru.xlv.packetapi.common.packet.registration.Packet;
+import ru.xlv.packetapi.common.packet.registration.PacketRegistrationRouter;
 import ru.xlv.packetapi.server.bukkit.packet.ICallbackInBukkit;
 import ru.xlv.packetapi.server.bukkit.packet.IPacketInBukkit;
 import ru.xlv.packetapi.server.bukkit.packet.IPacketOutBukkit;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public class AutoRegPacketScannerBukkit implements IAutoRegPacketScanner {
+public class PacketRegistrationRouterBukkit extends PacketRegistrationRouter {
 
-    private static final AutoRegPacketScannerBukkit INSTANCE = new AutoRegPacketScannerBukkit();
+    private static final PacketRegistrationRouterBukkit INSTANCE = new PacketRegistrationRouterBukkit();
 
-    private AutoRegPacketScannerBukkit() {}
+    private PacketRegistrationRouterBukkit() {}
 
     @Override
-    public void register(Class<?> packetClass) {
+    protected void register(@Nonnull String channelName, @Nonnull Class<?> packetClass) {
         if (IPacket.class.isAssignableFrom(packetClass)) {
-            AutoRegPacket annotation = packetClass.getAnnotation(AutoRegPacket.class);
-            String channelName = annotation.channelName();
+            Packet annotation = packetClass.getAnnotation(Packet.class);
             if(isServerSidePacket(packetClass)) {
                 try {
                     Constructor<?> constructor = packetClass.getConstructor();
@@ -45,7 +45,7 @@ public class AutoRegPacketScannerBukkit implements IAutoRegPacketScanner {
         return IPacketOutBukkit.class.isAssignableFrom(packetClass) || IPacketInBukkit.class.isAssignableFrom(packetClass) || ICallbackInBukkit.class.isAssignableFrom(packetClass);
     }
 
-    public static AutoRegPacketScannerBukkit getInstance() {
+    public static PacketRegistrationRouterBukkit getInstance() {
         return INSTANCE;
     }
 }

@@ -17,14 +17,14 @@ buildscript {
 }
 
 apply plugin: 'forge'
-apply plugin: 'idea'
 
 sourceCompatibility = targetCompatibility =  '1.8'
 compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
 
 sourceSets.main.java.srcDir 'src'
 
-idea.module.inheritOutputDirs = false
+// UNCOMMENT IF YOU NEED TO ASSEMBLE A LIBRARY AS A DEPENDENCE OF YOUR PROJECT
+// reobf.enabled = false
 
 repositories {
     mavenCentral()

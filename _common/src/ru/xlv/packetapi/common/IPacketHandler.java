@@ -5,7 +5,7 @@ import ru.xlv.packetapi.common.packet.EmptyConstructorException;
 import ru.xlv.packetapi.common.packet.IPacket;
 import ru.xlv.packetapi.common.packet.PacketNotFoundException;
 import ru.xlv.packetapi.common.packet.PacketRegistrationException;
-import ru.xlv.packetapi.common.registry.PacketRegistry;
+import ru.xlv.packetapi.common.packet.registration.PacketRegistry;
 
 import javax.annotation.Nonnull;
 

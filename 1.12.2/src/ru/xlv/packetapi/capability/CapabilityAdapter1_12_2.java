@@ -18,8 +18,6 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;
-import ru.xlv.flex.thr.ThrBiConsumer;
-import ru.xlv.flex.thr.ThrConsumer;
 import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
@@ -111,8 +109,8 @@ public class CapabilityAdapter1_12_2 implements ICapabilityAdapter {
 
     @SuppressWarnings({"unchecked"})
     @Override
-    public <PLAYER> AbstractNetworkAdapter<PLAYER> newNetworkAdapter(Class<? super PLAYER> aClass, String channelName, ThrConsumer<ByteBufInputStream> clientPacketReceived, ThrBiConsumer<PLAYER, ByteBufInputStream> serverPacketReceived) {
-        return new AbstractNetworkAdapter<PLAYER>(channelName, clientPacketReceived, serverPacketReceived) {
+    public <PLAYER> AbstractNetworkAdapter<PLAYER> newNetworkAdapter(Class<? super PLAYER> aClass, String channelName) {
+        return new AbstractNetworkAdapter<PLAYER>(channelName) {
             private final FMLEventChannel channel;
             {
                 this.channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(channelName);

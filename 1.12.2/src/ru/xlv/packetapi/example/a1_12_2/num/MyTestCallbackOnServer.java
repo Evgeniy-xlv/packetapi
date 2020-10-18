@@ -2,7 +2,7 @@ package ru.xlv.packetapi.example.a1_12_2.num;
 
 import io.netty.buffer.ByteBufOutputStream;
 import net.minecraft.entity.player.EntityPlayer;
-import ru.xlv.packetapi.common.packet.autoreg.AutoRegPacket;
+import ru.xlv.packetapi.common.packet.registration.Packet;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 import ru.xlv.packetapi.server.ControllablePacket;
 import ru.xlv.packetapi.server.forge.packet.ICallbackInServer;
@@ -10,7 +10,7 @@ import ru.xlv.packetapi.server.forge.packet.PacketCallbackSender;
 
 import java.io.IOException;
 
-@AutoRegPacket(channelName = MyTestMod.MODID)
+@Packet
 @ControllablePacket(period = 200L, callWriteAnyway = true)
 public class MyTestCallbackOnServer implements ICallbackInServer {
 

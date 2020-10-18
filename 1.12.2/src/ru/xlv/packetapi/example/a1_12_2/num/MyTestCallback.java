@@ -2,13 +2,13 @@ package ru.xlv.packetapi.example.a1_12_2.num;
 
 import io.netty.buffer.ByteBufOutputStream;
 import ru.xlv.packetapi.client.packet.ICallbackOut;
-import ru.xlv.packetapi.common.packet.autoreg.AutoRegPacket;
+import ru.xlv.packetapi.common.packet.registration.Packet;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 
-@AutoRegPacket(channelName = MyTestMod.MODID)
+@Packet
 public class MyTestCallback implements ICallbackOut<MyTestCallback.Result> {
 
     private final Result result = new Result();

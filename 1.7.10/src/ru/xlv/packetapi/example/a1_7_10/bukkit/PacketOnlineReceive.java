@@ -1,12 +1,12 @@
 package ru.xlv.packetapi.example.a1_7_10.bukkit;
 
 import ru.xlv.packetapi.client.packet.IPacketInClient;
-import ru.xlv.packetapi.common.packet.autoreg.AutoRegPacket;
+import ru.xlv.packetapi.common.packet.registration.Packet;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
 import java.io.IOException;
 
-@AutoRegPacket(channelName = "timesenderexample")
+@Packet
 public class PacketOnlineReceive implements IPacketInClient {
     @Override
     public void read(ByteBufInputStream bbis) throws IOException {

@@ -49,7 +49,6 @@ public class PacketHandlerClient extends PacketHandlerForge {
         this.callbackResultWaitTimeout = callbackResultWaitTimeout;
     }
 
-    @Override
     protected void onClientPacketReceived(String channelName, ByteBufInputStream bbis) throws IOException {
         int pid = bbis.readInt();
         IPacket packet = createPacketById(channelName, pid);
@@ -162,7 +161,7 @@ public class PacketHandlerClient extends PacketHandlerForge {
 
     @Override
     public void setupNetworkChannel(String channelName) {
-        createNetworkAdapter(channelName);
+        createNetworkAdapter(channelName, byteBufInputStream -> onClientPacketReceived(channelName, byteBufInputStream), null);
     }
 
     /**
@@ -174,7 +173,7 @@ public class PacketHandlerClient extends PacketHandlerForge {
         try {
             byteBufOutputStream.writeInt(-1);
             getComposer().compose(composable, byteBufOutputStream);
-            sendPacketToServer(PacketAPI.getApiDefaultChannelName(), byteBufOutputStream);
+            sendPacketToServer(PacketAPI.DEFAULT_NET_CHANNEL_NAME, byteBufOutputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -354,7 +353,7 @@ public class PacketHandlerClient extends PacketHandlerForge {
     public static PacketHandlerClient getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new PacketHandlerClient(2000L, 0L);
-            INSTANCE.setupNetworkChannel(PacketAPI.getApiDefaultChannelName());
+            INSTANCE.setupNetworkChannel(PacketAPI.DEFAULT_NET_CHANNEL_NAME);
         }
         return INSTANCE;
     }

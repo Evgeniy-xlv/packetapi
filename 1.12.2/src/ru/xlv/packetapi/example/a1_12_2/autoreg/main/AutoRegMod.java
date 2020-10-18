@@ -11,17 +11,19 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.input.Keyboard;
-import ru.xlv.packetapi.common.packet.autoreg.AutoRegPacketSubscriber;
+import ru.xlv.packetapi.common.packet.registration.PacketSubscriber;
 import ru.xlv.packetapi.common.sender.Sender;
 import ru.xlv.packetapi.example.a1_12_2.autoreg.packets.FirstPacketClientExample;
 import ru.xlv.packetapi.example.a1_12_2.autoreg.packets.SecondPacketClientExample;
 import ru.xlv.packetapi.example.a1_12_2.autoreg.packets.SecondPacketServerExample;
 import ru.xlv.packetapi.example.a1_12_2.autoreg.packets.ThirdPacketClientExample;
 
+import static ru.xlv.packetapi.example.a1_12_2.autoreg.main.AutoRegMod.MODID;
+
 @Mod(
         modid = "autoregexample"
 )
-@AutoRegPacketSubscriber(packages = "ru.xlv.packetapi.example.a1_12_2.autoreg.packets")
+@PacketSubscriber(channelName = MODID, packages = "ru.xlv.packetapi.example.a1_12_2.autoreg.packets", enableReflectionsScanner = true)
 public class AutoRegMod {
 
     public static final String MODID = "autoregexample";

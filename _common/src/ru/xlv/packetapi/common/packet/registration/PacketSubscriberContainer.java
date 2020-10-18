@@ -1,4 +1,4 @@
-package ru.xlv.packetapi.common.packet.autoreg;
+package ru.xlv.packetapi.common.packet.registration;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,9 +7,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AutoRegPacketSubscriber {
+public @interface PacketSubscriberContainer {
 
-    String[] packages() default {};
-
-    Class<?>[] classes() default {};
+    PacketSubscriber[] value();
 }

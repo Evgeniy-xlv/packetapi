@@ -2,7 +2,7 @@ package ru.xlv.packetapi.example.a1_7_10.shop;
 
 import io.netty.buffer.ByteBufOutputStream;
 import net.minecraft.entity.player.EntityPlayer;
-import ru.xlv.packetapi.common.packet.autoreg.AutoRegPacket;
+import ru.xlv.packetapi.common.packet.registration.Packet;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 import ru.xlv.packetapi.server.RequestController;
 import ru.xlv.packetapi.server.forge.packet.ICallbackInServer;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-@AutoRegPacket(channelName = ShopMod.MODID)
+@Packet
 public class PacketShopCategoryGetOnServer implements ICallbackInServer {
 
     private static final RequestController<UUID> REQUEST_CONTROLLER = new RequestController.Periodic<>(1000L);

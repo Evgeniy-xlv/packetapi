@@ -20,9 +20,7 @@ public class PacketAPI {
 
     public static final String NAME = "packetapi";
     public static final String VERSION = "@PACKET_API_VERSION@";
-    private static final String API_DEFAULT_CHANNEL_NAME = "packetapi";
-
-    private static boolean isBukkitFound, isForgeFound;
+    public static final String DEFAULT_NET_CHANNEL_NAME = "packetapi";
 
     private PacketAPI() {}
 
@@ -55,29 +53,7 @@ public class PacketAPI {
         return COMPOSABLE_CATCHER_BUS;
     }
 
-    public static String getApiDefaultChannelName() {
-        return API_DEFAULT_CHANNEL_NAME;
-    }
-
-    public static boolean isBukkitFound() {
-        return isBukkitFound;
-    }
-
-    public static boolean isForgeFound() {
-        return isForgeFound;
-    }
-
     static {
-        try {
-            Class.forName("net.minecraft.entity.player.EntityPlayer");
-            isForgeFound = true;
-        } catch (ClassNotFoundException ignored) {
-        }
-        try {
-            Class.forName("org.bukkit.Bukkit");
-            isBukkitFound = true;
-        } catch (ClassNotFoundException ignored) {
-        }
         String gameVersions = "Nothing.";
         try {
             Enumeration<URL> resources = PacketAPI.class.getClassLoader().getResources("META-INF/MANIFEST.MF");

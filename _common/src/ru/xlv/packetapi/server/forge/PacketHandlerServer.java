@@ -45,7 +45,6 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-    @Override
     protected void onServerPacketReceived(String channelName, EntityPlayer entityPlayer, ByteBufInputStream bbis) throws IOException {
         int pid = bbis.readInt();
         IPacket packet = createPacketById(channelName, pid);
@@ -62,17 +61,16 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
                 }
             }
         } else if(pid == -1) {
-            Runnable runnable = () -> {
-                try {
-                    PacketAPI.getComposableCatcherBus().post(getComposer().decompose(bbis), entityPlayer);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            };
             if(PacketAPI.getCapabilityAdapter().isServerThread(Thread.currentThread())) {
-                runnable.run();
+                PacketAPI.getComposableCatcherBus().post(getComposer().decompose(bbis), entityPlayer);
             } else {
-                PacketAPI.getCapabilityAdapter().scheduleServerTaskSync(runnable);
+                PacketAPI.getCapabilityAdapter().scheduleServerTaskSync(() -> {
+                    try {
+                        PacketAPI.getComposableCatcherBus().post(getComposer().decompose(bbis), entityPlayer);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         }
     }
@@ -208,7 +206,7 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
 
     @Override
     public void setupNetworkChannel(String channelName) {
-        createNetworkAdapter(channelName);
+        createNetworkAdapter(channelName, null, (entityPlayer, byteBufInputStream) -> onServerPacketReceived(channelName, entityPlayer, byteBufInputStream));
     }
 
     @Override
@@ -226,7 +224,7 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
         try {
             byteBufOutputStream.writeInt(-1);
             getComposer().compose(composable, byteBufOutputStream);
-            sendPacketToPlayer(PacketAPI.getApiDefaultChannelName(), player, byteBufOutputStream);
+            sendPacketToPlayer(PacketAPI.DEFAULT_NET_CHANNEL_NAME, player, byteBufOutputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -271,7 +269,7 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
     public static PacketHandlerServer getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new PacketHandlerServer();
-            INSTANCE.setupNetworkChannel(PacketAPI.getApiDefaultChannelName());
+            INSTANCE.setupNetworkChannel(PacketAPI.DEFAULT_NET_CHANNEL_NAME);
         }
         return INSTANCE;
     }

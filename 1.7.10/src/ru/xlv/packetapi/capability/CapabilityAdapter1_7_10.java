@@ -19,8 +19,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.MinecraftForge;
-import ru.xlv.flex.thr.ThrBiConsumer;
-import ru.xlv.flex.thr.ThrConsumer;
 import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
@@ -130,8 +128,8 @@ public class CapabilityAdapter1_7_10 implements ICapabilityAdapter {
     }
 
     @Override
-    public <PLAYER> AbstractNetworkAdapter<PLAYER> newNetworkAdapter(Class<? super PLAYER> aClass, String channelName, ThrConsumer<ByteBufInputStream> clientPacketReceived, ThrBiConsumer<PLAYER, ByteBufInputStream> serverPacketReceived) {
-        return new NetworkAdapter<>(channelName, clientPacketReceived, serverPacketReceived);
+    public <PLAYER> AbstractNetworkAdapter<PLAYER> newNetworkAdapter(Class<? super PLAYER> aClass, String channelName) {
+        return new NetworkAdapter<>(channelName);
     }
 
     @SuppressWarnings({"unchecked"})
@@ -139,8 +137,8 @@ public class CapabilityAdapter1_7_10 implements ICapabilityAdapter {
 
         private final FMLEventChannel channel;
 
-        public NetworkAdapter(String channelName, ThrConsumer<ByteBufInputStream> clientPacketReceived, ThrBiConsumer<PLAYER, ByteBufInputStream> serverPacketReceived) {
-            super(channelName, clientPacketReceived, serverPacketReceived);
+        public NetworkAdapter(String channelName) {
+            super(channelName);
             this.channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(channelName);
             this.channel.register(this);
             MinecraftForge.EVENT_BUS.register(this);

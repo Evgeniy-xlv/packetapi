@@ -1,4 +1,4 @@
-package ru.xlv.packetapi.common.packet.autoreg;
+package ru.xlv.packetapi.common.packet.registration;
 
 import ru.xlv.packetapi.client.PacketHandlerClient;
 import ru.xlv.packetapi.client.packet.ICallbackOut;
@@ -11,20 +11,20 @@ import ru.xlv.packetapi.server.forge.packet.ICallbackInServer;
 import ru.xlv.packetapi.server.forge.packet.IPacketInServer;
 import ru.xlv.packetapi.server.forge.packet.IPacketOutServer;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public class AutoRegPacketScanner implements IAutoRegPacketScanner {
+public class PacketRegistrationRouterForge extends PacketRegistrationRouter {
 
-    private static final AutoRegPacketScanner INSTANCE = new AutoRegPacketScanner();
+    private static final PacketRegistrationRouterForge INSTANCE = new PacketRegistrationRouterForge();
 
-    private AutoRegPacketScanner() {}
+    private PacketRegistrationRouterForge() {}
 
     @Override
-    public void register(Class<?> packetClass) {
+    protected void register(@Nonnull String channelName, @Nonnull Class<?> packetClass) {
         if (IPacket.class.isAssignableFrom(packetClass)) {
-            AutoRegPacket annotation = packetClass.getAnnotation(AutoRegPacket.class);
-            String channelName = annotation.channelName();
+            Packet annotation = packetClass.getAnnotation(Packet.class);
             if(isServerSidePacket(packetClass)) {
                 try {
                     Constructor<?> constructor = packetClass.getConstructor();
@@ -68,7 +68,7 @@ public class AutoRegPacketScanner implements IAutoRegPacketScanner {
         return IPacketOutClient.class.isAssignableFrom(packetClass) || IPacketInClient.class.isAssignableFrom(packetClass) || ICallbackOut.class.isAssignableFrom(packetClass);
     }
 
-    public static AutoRegPacketScanner getInstance() {
+    public static PacketRegistrationRouterForge getInstance() {
         return INSTANCE;
     }
 }

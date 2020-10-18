@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.input.Keyboard;
-import ru.xlv.packetapi.common.packet.autoreg.AutoRegPacketSubscriber;
+import ru.xlv.packetapi.common.packet.registration.PacketSubscriber;
 import ru.xlv.packetapi.common.sender.Sender;
 
 import java.util.Random;
@@ -15,7 +15,10 @@ import java.util.Random;
 import static ru.xlv.packetapi.example.a1_12_2.num.MyTestMod.MODID;
 
 @Mod(modid = MODID)
-@AutoRegPacketSubscriber
+@PacketSubscriber(channelName = MODID, packets = {
+        MyTestCallback.class,
+        MyTestCallbackOnServer.class
+})
 public class MyTestMod {
 
     static final String MODID = "packetapiexample";

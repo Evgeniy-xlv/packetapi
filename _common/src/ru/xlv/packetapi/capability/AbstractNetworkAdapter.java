@@ -16,10 +16,8 @@ public abstract class AbstractNetworkAdapter<PLAYER> {
     private final List<ThrConsumer<ByteBufInputStream>> clientPacketReceiveListeners = new ArrayList<>();
     private final List<ThrBiConsumer<PLAYER, ByteBufInputStream>> serverPacketReceiveListeners = new ArrayList<>();
 
-    public AbstractNetworkAdapter(String channelName, ThrConsumer<ByteBufInputStream> clientPacketReceived, ThrBiConsumer<PLAYER, ByteBufInputStream> serverPacketReceived) {
+    public AbstractNetworkAdapter(String channelName) {
         this.channelName = channelName;
-        addClientPacketReceiveListener(clientPacketReceived);
-        addServerPacketReceiveListener(serverPacketReceived);
     }
 
     public void addClientPacketReceiveListener(ThrConsumer<ByteBufInputStream> clientPacketReceived) {
