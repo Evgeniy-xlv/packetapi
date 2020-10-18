@@ -162,7 +162,7 @@ public class CapabilityAdapter1_12_2 implements ICapabilityAdapter {
         @Override
         public boolean check() {
             try {
-                Class.forName("net/minecraftforge/fml/common/network/NetworkRegistry");
+                Class.forName("net.minecraftforge.fml.common.network.NetworkRegistry");
                 return true;
             } catch (ClassNotFoundException ignored) {}
             return false;
