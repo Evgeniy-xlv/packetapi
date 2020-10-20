@@ -1,14 +1,12 @@
 # PacketAPI is designed to make networking easier in Minecraft.
 
-[![](https://jitpack.io/v/Evgeniy-Xlv/packetapi.svg)](https://jitpack.io/#Evgeniy-Xlv/packetapi)
-
 ### Briefly:
 
 * Make life easier for yourself and get rid of the need to create a handler for each packet, while maintaining OOP style and synchronization of handling
 * Register packets without the need to specify descriminators and other things
 * Callbacks. Send the request to the server and wait for the response asynchronously, and then process the result synchronously, all in one line of code
 * Control over packets. Suppress spam of packets with one annotation
-* Use convenient PacketHandlers, which contain a set of popular methods for sending data to and fro
+* Use the handy Sender tool, which contain a set of popular methods for sending data to and from
 * Convert Object <-> byte [] without pain
 * Work with both ForgeClient <-> ForgeServer and ForgeClient <-> BukkitAPI
 * Lazy data sending without packets
@@ -79,6 +77,7 @@ You can find more examples in the source code.
     
 * Misc tools:
     * `Composable` is a type of objects that can be sent without packets. See examples and docs for more information
+    * `Sender` is a one of the main tools for sending outgoing packets, callbacks and `Composable` objects. See examples and docs for more information
     * `RequestController` is a tool for filtering and scheduling packet execution. See examples and docs for more information
     * `Packet` and `PacketSubscriber` are annotations to automatically register your packets. See examples and docs for more information
 
@@ -94,44 +93,10 @@ You can find more examples in the source code.
 
 ## Install
 
-### Gradle:
+**Go to [Releases](https://github.com/Evgeniy-xlv/packetapi/releases) and download one of them.**
 
-Add following lines to **build.gradle**:
-```gradle
-    repositories {
-        maven { url 'https://jitpack.io' }
-    }
-    
-    dependencies {
-        compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
-        compile group: 'com.github.Evgeniy-Xlv' name:'packetapi' version:'1.2.0'
-    }
-```
-
-### Maven:
-
-Add following lines to **pom.xml**:
-```xml
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-    
-    <dependencies>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.11</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.Evgeniy-Xlv</groupId>
-            <artifactId>packetapi</artifactId>
-            <version>1.2.0</version>
-        </dependency>
-    </dependencies>
-```
+p.s. use a jar file called `packetapi-@VERSION@-no-reobf.jar` if you cannot run the game with this library from the IDE. 
+It's possible when working with `Minecraft v1.7.10`
 
 ## Dependencies
 

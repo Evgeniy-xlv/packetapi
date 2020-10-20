@@ -1,0 +1,1 @@
+../gradlew -p ../ build -Dru.xlv.packetapi.disableReobf=true

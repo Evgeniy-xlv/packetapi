@@ -23,8 +23,12 @@ compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
 
 sourceSets.main.java.srcDir 'src'
 
-// UNCOMMENT IF YOU NEED TO ASSEMBLE A LIBRARY AS A DEPENDENCE OF YOUR PROJECT
-// reobf.enabled = false
+reobf {
+    enabled = System.getProperty("ru.xlv.packetapi.disableReobf") != "true"
+    if(!enabled) {
+        println '-- Default reobfuscation is disabled'
+    }
+}
 
 repositories {
     mavenCentral()

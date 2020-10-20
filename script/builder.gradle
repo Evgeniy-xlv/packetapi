@@ -2,6 +2,11 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
+File[] miscFiles = [
+        rootProject.file("LICENSE"),
+        rootProject.file("README.md")
+]
+
 task defineSupportedGameVersions {
     doLast {
         List<String> versions = new ArrayList<>()
@@ -25,7 +30,7 @@ task assembleFinalArtifact {
         rootProject.getAllprojects().forEach({ project ->
             DomainObjectSet<ProjectDependency> projectDependencies = project.getConfigurations().compile.dependencies.withType ProjectDependency
             projectDependencies.forEach {
-                print "${project} depends on project + ${it.dependencyProject}."
+                print "${project} depends on ${it.dependencyProject}."
                 if(project.getName() == '_common' || it.dependencyProject.getName() == '_common') {
                     println " it's a target project."
                     copy {
@@ -39,25 +44,28 @@ task assembleFinalArtifact {
         File classesDir = new File(tempDir, 'classes')
         classesDir.mkdirs()
         for(File file : artifactsDir.listFiles()) {
-            println "unzipping file ${file}"
+            println "unzipping file ${file}..."
             unzip(file, classesDir)
         }
-        File file = new File(rootProject.buildDir, "libs/${rootProject.archivesBaseName}.jar")
+        File file = new File(rootProject.buildDir, "libs/${rootProject.archivesBaseName}${(System.getProperty("ru.xlv.packetapi.disableReobf") == "true") ? "-no-reobf" : ""}.jar")
         if(file.exists()) {
             file.delete()
         }
         file.createNewFile()
-        println "zipping build file ${file}"
-        zipDir(file, classesDir)
+        println "zipping final artifact ${file}..."
+        Set<File> set = new HashSet<>()
+        set.addAll(classesDir.listFiles())
+        set.addAll(miscFiles)
+        zipFiles(file, set)
         delete tempDir
         println 'building completed.'
     }
 }
 
-private static void zipDir(File zipFile, File dir) {
+private static void zipFiles(File zipFile, Collection<File> files) {
     FileOutputStream fos = new FileOutputStream(zipFile)
     ZipOutputStream zipOut = new ZipOutputStream(fos)
-    for(File file : dir.listFiles()) {
+    for(File file : files) {
         doZipFile(file, file.getName(), zipOut)
     }
     zipOut.close()
