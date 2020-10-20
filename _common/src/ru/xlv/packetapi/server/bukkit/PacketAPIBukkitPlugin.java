@@ -15,9 +15,7 @@ import java.util.Collection;
 public class PacketAPIBukkitPlugin extends JavaPlugin {
 
     private static PacketHandlerBukkit instance;
-
-    @Override
-    public void onEnable() {
+    {
         //todo fix
         try {
             Constructor<PacketHandlerBukkit> constructor = PacketHandlerBukkit.class.getDeclaredConstructor(JavaPlugin.class);
