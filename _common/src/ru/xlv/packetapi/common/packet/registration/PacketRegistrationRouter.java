@@ -11,7 +11,7 @@ public abstract class PacketRegistrationRouter {
     public void scanThenRegister(@Nonnull Class<?> modClass) {
         PacketSubscriber[] annotations = getAnnotations(modClass);
         if (annotations == null) {
-            LOGGER.warning("No AutoRegPacketSubscriber annotations found for " + modClass.getName() + "! Skipping...");
+            LOGGER.warning("No PacketSubscriber annotations found for " + modClass.getName() + "! Skipping...");
             return;
         }
         for (PacketSubscriber annotation : annotations) {
