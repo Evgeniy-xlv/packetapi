@@ -1,8 +1,5 @@
 package ru.xlv.packetapi.common.composable;
 
-import io.netty.buffer.ByteBufOutputStream;
-import ru.xlv.packetapi.common.util.ByteBufInputStream;
-
 import java.io.Serializable;
 
 /**
@@ -13,14 +10,4 @@ import java.io.Serializable;
  * @see Composer to understand how it is serializing.
  * */
 public interface Composable extends Serializable {
-
-    /**
-     * Override this method if you want to change the serialization process of your object.
-     * */
-    default void serialize(ByteBufOutputStream byteBufOutputStream) {}
-
-    /**
-     * Override this method if you want to change the deserialization process of your object.
-     * */
-    default void deserialize(ByteBufInputStream byteBufInputStream) {}
 }
