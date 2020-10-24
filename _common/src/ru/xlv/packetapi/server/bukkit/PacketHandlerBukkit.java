@@ -70,7 +70,7 @@ public class PacketHandlerBukkit implements IPacketHandlerServer<Player, IPacket
             }
         } else if(pid == -1) {
             try {
-                PacketAPI.getComposableCatcherBus().post(IPacket.COMPOSER.decompose(bbis), player);
+                PacketAPI.getComposableCatcherBus().post(Composable.decompose(bbis), player);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -129,7 +129,8 @@ public class PacketHandlerBukkit implements IPacketHandlerServer<Player, IPacket
      * Registers packets for the specified channel name.
      * Their id will be automatically generated.
      * */
-    public <T extends IPacketOutBukkit> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
+    @SafeVarargs
+    public final <T extends IPacketOutBukkit> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
         return registerPackets(packet -> registerPacket(channelName, packet), packets);
     }
 
@@ -137,7 +138,8 @@ public class PacketHandlerBukkit implements IPacketHandlerServer<Player, IPacket
      * Registers packets for the specified channel name.
      * Their id will be automatically generated.
      * */
-    public <T extends IPacketInBukkit> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
+    @SafeVarargs
+    public final <T extends IPacketInBukkit> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
         return registerPackets(packet -> registerPacket(channelName, packet), packets);
     }
 
@@ -145,11 +147,13 @@ public class PacketHandlerBukkit implements IPacketHandlerServer<Player, IPacket
      * Registers packets for the specified channel name.
      * Their id will be automatically generated.
      * */
-    public <T extends ICallbackInBukkit> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
+    @SafeVarargs
+    public final <T extends ICallbackInBukkit> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
         return registerPackets(packet -> registerPacket(channelName, packet), packets);
     }
 
-    private <T extends IPacket> int[] registerPackets(Function<T, Integer> function, T... packets) {
+    @SafeVarargs
+    private final <T extends IPacket> int[] registerPackets(Function<T, Integer> function, T... packets) {
         int[] ii = new int[packets.length];
         for (int i = 0; i < packets.length; i++) {
             ii[i] = function.apply(packets[i]);
@@ -234,7 +238,7 @@ public class PacketHandlerBukkit implements IPacketHandlerServer<Player, IPacket
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
         try {
             byteBufOutputStream.writeInt(-1);
-            IPacket.COMPOSER.compose(composable, byteBufOutputStream);
+            Composable.compose(composable, byteBufOutputStream);
             sendPacketToPlayer(PacketAPI.DEFAULT_NET_CHANNEL_NAME, player, byteBufOutputStream);
         } catch (IOException e) {
             e.printStackTrace();

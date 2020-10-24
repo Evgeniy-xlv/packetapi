@@ -56,7 +56,7 @@ public class PacketHandlerClient extends PacketHandlerForge {
             PacketAPI.getCapabilityAdapter().scheduleTaskSync(() -> {
                 try {
                     if (pid == -1) {
-                        PacketAPI.getComposableCatcherBus().post(getComposer().decompose(bbis));
+                        PacketAPI.getComposableCatcherBus().post(Composable.decompose(bbis));
                         return;
                     }
                     if (packet instanceof ICallbackOut) {
@@ -98,7 +98,8 @@ public class PacketHandlerClient extends PacketHandlerForge {
      * Registers packets for the specified channel name.
      * Their id will be automatically generated.
      * */
-    public <T extends IPacketOutClient> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
+    @SafeVarargs
+    public final <T extends IPacketOutClient> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
         return registerPackets(packet -> registerPacket(channelName, packet), packets);
     }
 
@@ -106,7 +107,8 @@ public class PacketHandlerClient extends PacketHandlerForge {
      * Registers packets for the specified channel name.
      * Their id will be automatically generated.
      * */
-    public <T extends IPacketInClient> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
+    @SafeVarargs
+    public final <T extends IPacketInClient> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
         return registerPackets(packet -> registerPacket(channelName, packet), packets);
     }
 
@@ -114,11 +116,13 @@ public class PacketHandlerClient extends PacketHandlerForge {
      * Registers packets for the specified channel name.
      * Their id will be automatically generated.
      * */
-    public <T extends ICallbackOut<T>> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
+    @SafeVarargs
+    public final <T extends ICallbackOut<T>> int[] registerPackets(@Nonnull String channelName, @Nonnull T... packets) {
         return registerPackets(packet -> registerPacket(channelName, packet), packets);
     }
 
-    private <T extends IPacket> int[] registerPackets(Function<T, Integer> function, T... packets) {
+    @SafeVarargs
+    private final <T extends IPacket> int[] registerPackets(Function<T, Integer> function, T... packets) {
         int[] ii = new int[packets.length];
         for (int i = 0; i < packets.length; i++) {
             ii[i] = function.apply(packets[i]);
@@ -172,7 +176,7 @@ public class PacketHandlerClient extends PacketHandlerForge {
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
         try {
             byteBufOutputStream.writeInt(-1);
-            getComposer().compose(composable, byteBufOutputStream);
+            Composable.compose(composable, byteBufOutputStream);
             sendPacketToServer(PacketAPI.DEFAULT_NET_CHANNEL_NAME, byteBufOutputStream);
         } catch (IOException e) {
             e.printStackTrace();

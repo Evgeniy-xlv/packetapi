@@ -8,9 +8,13 @@ public abstract class PacketRegistrationRouter {
 
     protected static final Logger LOGGER = Logger.getLogger(PacketRegistrationRouter.class.getSimpleName());
 
+    public void scanTheRegister(@Nonnull Object modObject) {
+        scanThenRegister(modObject.getClass());
+    }
+
     public void scanThenRegister(@Nonnull Class<?> modClass) {
-        PacketSubscriber[] annotations = getAnnotations(modClass);
-        if (annotations == null) {
+        List<PacketSubscriber> annotations = getAnnotations(modClass);
+        if (annotations.isEmpty()) {
             LOGGER.warning("No PacketSubscriber annotations found for " + modClass.getName() + "! Skipping...");
             return;
         }
@@ -28,13 +32,17 @@ public abstract class PacketRegistrationRouter {
         }
     }
 
-    private PacketSubscriber[] getAnnotations(@Nonnull Class<?> modClass) {
-        if (modClass.isAnnotationPresent(PacketSubscriber.class)) {
-            return new PacketSubscriber[] { modClass.getAnnotation(PacketSubscriber.class) };
-        } else if(modClass.isAnnotationPresent(PacketSubscriberContainer.class)) {
-            return modClass.getAnnotation(PacketSubscriberContainer.class).value();
+    private List<PacketSubscriber> getAnnotations(@Nonnull Class<?> modClass) {
+        List<PacketSubscriber> list = new ArrayList<>(Arrays.asList(modClass.getAnnotationsByType(PacketSubscriber.class)));
+        while(modClass.getSuperclass() != Object.class) {
+            modClass = modClass.getSuperclass();
+            if (modClass.isAnnotationPresent(PacketSubscriber.class)) {
+                list.add(modClass.getAnnotation(PacketSubscriber.class));
+            } else if(modClass.isAnnotationPresent(PacketSubscriberContainer.class)) {
+                list.addAll(Arrays.asList(modClass.getAnnotationsByType(PacketSubscriber.class)));
+            }
         }
-        return null;
+        return list;
     }
 
     protected abstract void register(@Nonnull String channelName, @Nonnull Class<?> packetClass);

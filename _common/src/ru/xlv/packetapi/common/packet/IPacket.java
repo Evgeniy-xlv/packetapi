@@ -5,7 +5,6 @@ import ru.xlv.flex.thr.ThrBiConsumer;
 import ru.xlv.flex.thr.ThrCallable;
 import ru.xlv.flex.thr.ThrFunction;
 import ru.xlv.packetapi.common.composable.Composable;
-import ru.xlv.packetapi.common.composable.Composer;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
 import javax.annotation.Nonnull;
@@ -18,8 +17,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public interface IPacket {
-
-    Composer COMPOSER = new Composer();
 
     /**
      * Writes a collection to the buffer, using {@link ThrBiConsumer}.
@@ -120,7 +117,7 @@ public interface IPacket {
         } else if(serializable instanceof byte[]) {
             byteBufOutputStream.writeBytes(new String((byte[]) serializable));
         } else if(serializable instanceof Composable) {
-            COMPOSER.compose((Composable) serializable, byteBufOutputStream);
+            Composable.compose((Composable) serializable, byteBufOutputStream);
         } else {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteBufOutputStream);
             objectOutputStream.writeObject(serializable);
@@ -153,11 +150,16 @@ public interface IPacket {
         } else if(tClass == byte[].class) {
             return (T) byteBufInputStream.readUTF().getBytes();
         } else if(Composable.class.isAssignableFrom(tClass)) {
-            return (T) COMPOSER.decompose(byteBufInputStream);
+            return (T) Composable.decompose(byteBufInputStream);
         } else {
             try {
                 ObjectInputStream objectInputStream = new ObjectInputStream(byteBufInputStream);
-                return (T) objectInputStream.readObject();
+                Object o = objectInputStream.readObject();
+                if(tClass == o) {
+                    return (T) o;
+                } else {
+                    throw new IOException(tClass + " != " + o.getClass());
+                }
             } catch (ClassNotFoundException e) {
                 throw new IOException(e);
             }

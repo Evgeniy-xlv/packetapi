@@ -9,14 +9,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
-import java.util.logging.Logger;
 
 public class PacketAPI {
 
     private static ICapabilityAdapter capabilityAdapter;
     private static final ComposableCatcherBus COMPOSABLE_CATCHER_BUS = new ComposableCatcherBus();
-
-    private static final Logger LOGGER = Logger.getLogger(PacketAPI.class.getSimpleName());
 
     public static final String NAME = "packetapi";
     public static final String VERSION = "@PACKET_API_VERSION@";
@@ -27,17 +24,13 @@ public class PacketAPI {
     private static void initCapabilityAdapter(String gameVersion) {
         if (gameVersion != null) {
             try {
-                LOGGER.info("Checking version: " + gameVersion);
                 Class<?> adapter = Class.forName("ru.xlv.packetapi.capability.CapabilityAdapter" + gameVersion.replace(".", "_"));
                 VersionCheckerImpl annotation = adapter.getAnnotation(VersionCheckerImpl.class);
                 if (annotation != null && annotation.value().newInstance().check()) {
                     setCapabilityAdapter((ICapabilityAdapter) adapter.newInstance());
-                    LOGGER.info("Success.");
-                    return;
                 }
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ignored) {
             }
-            LOGGER.info("Error.");
         }
     }
 

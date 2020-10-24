@@ -5,8 +5,6 @@ import ru.xlv.flex.thr.ThrBiConsumer;
 import ru.xlv.flex.thr.ThrConsumer;
 import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.capability.AbstractNetworkAdapter;
-import ru.xlv.packetapi.common.composable.Composer;
-import ru.xlv.packetapi.common.packet.IPacket;
 import ru.xlv.packetapi.common.packet.registration.PacketRegistry;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
@@ -21,8 +19,6 @@ public abstract class PacketHandlerForge implements IPacketHandler {
     private final PacketRegistry packetRegistry = new PacketRegistry();
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
-
-    private final Composer composer = IPacket.COMPOSER;
 
     protected void createNetworkAdapter(String channelName, ThrConsumer<ByteBufInputStream> clientPacketReceived, ThrBiConsumer<EntityPlayer, ByteBufInputStream> serverPacketReceived) {
         getLogger().info("Trying to register a new network channel " + channelName + "...");
@@ -53,9 +49,5 @@ public abstract class PacketHandlerForge implements IPacketHandler {
 
     protected Logger getLogger() {
         return logger;
-    }
-
-    protected Composer getComposer() {
-        return composer;
     }
 }

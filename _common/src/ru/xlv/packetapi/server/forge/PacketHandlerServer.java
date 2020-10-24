@@ -62,11 +62,11 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
             }
         } else if(pid == -1) {
             if(PacketAPI.getCapabilityAdapter().isServerThread(Thread.currentThread())) {
-                PacketAPI.getComposableCatcherBus().post(getComposer().decompose(bbis), entityPlayer);
+                PacketAPI.getComposableCatcherBus().post(Composable.decompose(bbis), entityPlayer);
             } else {
                 PacketAPI.getCapabilityAdapter().scheduleServerTaskSync(() -> {
                     try {
-                        PacketAPI.getComposableCatcherBus().post(getComposer().decompose(bbis), entityPlayer);
+                        PacketAPI.getComposableCatcherBus().post(Composable.decompose(bbis), entityPlayer);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -125,7 +125,8 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
      * Registers packets for the specified channel name.
      * Their id will be automatically generated.
      * */
-    public <T extends IPacketOutServer> int[] registerPackets(String channelName, T... packets) {
+    @SafeVarargs
+    public final <T extends IPacketOutServer> int[] registerPackets(String channelName, T... packets) {
         return registerPackets(packet -> registerPacket(channelName, packet), packets);
     }
 
@@ -133,7 +134,8 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
      * Registers packets for the specified channel name.
      * Their id will be automatically generated.
      * */
-    public <T extends IPacketInServer> int[] registerPackets(String channelName, T... packets) {
+    @SafeVarargs
+    public final <T extends IPacketInServer> int[] registerPackets(String channelName, T... packets) {
         return registerPackets(packet -> registerPacket(channelName, packet), packets);
     }
 
@@ -141,11 +143,13 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
      * Registers packets for the specified channel name.
      * Their id will be automatically generated.
      * */
-    public <T extends ICallbackInServer> int[] registerPackets(String channelName, T... packets) {
+    @SafeVarargs
+    public final <T extends ICallbackInServer> int[] registerPackets(String channelName, T... packets) {
         return registerPackets(packet -> registerPacket(channelName, packet), packets);
     }
 
-    private <T extends IPacket> int[] registerPackets(Function<T, Integer> function, T... packets) {
+    @SafeVarargs
+    private final <T extends IPacket> int[] registerPackets(Function<T, Integer> function, T... packets) {
         int[] ii = new int[packets.length];
         for (int i = 0; i < packets.length; i++) {
             ii[i] = function.apply(packets[i]);
@@ -223,7 +227,7 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
         try {
             byteBufOutputStream.writeInt(-1);
-            getComposer().compose(composable, byteBufOutputStream);
+            Composable.compose(composable, byteBufOutputStream);
             sendPacketToPlayer(PacketAPI.DEFAULT_NET_CHANNEL_NAME, player, byteBufOutputStream);
         } catch (IOException e) {
             e.printStackTrace();
