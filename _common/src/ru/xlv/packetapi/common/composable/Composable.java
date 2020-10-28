@@ -19,6 +19,7 @@ import java.io.Serializable;
 public interface Composable extends Serializable {
 
     static <T extends Composable> void compose(T composable, ByteBufOutputStream byteBufOutputStream) throws IOException {
+        if(composable == null) throw new IOException("The input composable is null!");
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteBufOutputStream);
         objectOutputStream.writeObject(composable);
         objectOutputStream.close();
@@ -31,10 +32,11 @@ public interface Composable extends Serializable {
             Object o = objectInputStream.readObject();
             if (o instanceof Composable) {
                 return (Composable) o;
+            } else {
+                throw new IOException("Unexpected exception. Not valid object: " + o);
             }
         } catch (ClassNotFoundException e) {
             throw new IOException(e);
         }
-        throw new IOException("Unexpected exception.");
     }
 }

@@ -42,7 +42,7 @@ public class PacketHandlerClient extends PacketHandlerForge {
     private final TIntObjectHashMap<ICallbackOut<?>> callbackMap = new TIntObjectHashMap<>();
     private final TIntObjectHashMap<Object> callbackResultMap = new TIntObjectHashMap<>();
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(PacketAPI.getCallbackThreadPoolSize());
 
     private PacketHandlerClient(long callbackResultWaitTimeout, long callbackDefaultCheckResultPeriod) {
         this.callbackDefaultCheckResultPeriod = callbackDefaultCheckResultPeriod;

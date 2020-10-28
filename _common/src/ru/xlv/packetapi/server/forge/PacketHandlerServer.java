@@ -43,7 +43,7 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
 
     private final Map<Class<? extends IPacket>, PacketData> packetDataMap = new HashMap<>();
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(PacketAPI.getAsyncPacketThreadPoolSize());
 
     protected void onServerPacketReceived(String channelName, EntityPlayer entityPlayer, ByteBufInputStream bbis) throws IOException {
         int pid = bbis.readInt();

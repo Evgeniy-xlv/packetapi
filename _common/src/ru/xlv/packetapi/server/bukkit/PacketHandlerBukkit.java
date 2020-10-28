@@ -46,7 +46,7 @@ public class PacketHandlerBukkit implements IPacketHandlerServer<Player, IPacket
 
     private final Map<Class<? extends IPacket>, PacketData> packetDataMap = new HashMap<>();
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(PacketAPI.getAsyncPacketThreadPoolSize());
 
     private static PacketHandlerBukkit instance;
 

@@ -19,6 +19,9 @@ public class PacketAPI {
     public static final String VERSION = "@PACKET_API_VERSION@";
     public static final String DEFAULT_NET_CHANNEL_NAME = "packetapi";
 
+    private static int callbackThreadPoolSize = 2;
+    private static int asyncPacketThreadPoolSize = 2;
+
     private PacketAPI() {}
 
     private static void initCapabilityAdapter(String gameVersion) {
@@ -46,7 +49,34 @@ public class PacketAPI {
         return COMPOSABLE_CATCHER_BUS;
     }
 
-    static {
+    public static int getCallbackThreadPoolSize() {
+        return callbackThreadPoolSize;
+    }
+
+    public static int getAsyncPacketThreadPoolSize() {
+        return asyncPacketThreadPoolSize;
+    }
+
+    private static void processProperties() {
+        String callbackThreadPoolSize = System.getProperty("ru.xlv.packetapi.callbackThreadPoolSize");
+        if (callbackThreadPoolSize != null) {
+            try {
+                PacketAPI.callbackThreadPoolSize = Integer.parseInt(callbackThreadPoolSize);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        String asyncPacketThreadPoolSize = System.getProperty("ru.xlv.packetapi.asyncPacketThreadPoolSize");
+        if (asyncPacketThreadPoolSize != null) {
+            try {
+                PacketAPI.asyncPacketThreadPoolSize = Integer.parseInt(asyncPacketThreadPoolSize);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void defineCurrentMinecraftVersion() {
         String gameVersions = "Nothing.";
         try {
             Enumeration<URL> resources = PacketAPI.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
@@ -78,5 +108,10 @@ public class PacketAPI {
         if(getCapabilityAdapter() == null) {
             throw new RuntimeException("The current game version isn't supported by PacketAPI. Supported game versions: " + gameVersions);
         }
+    }
+
+    static {
+        processProperties();
+        defineCurrentMinecraftVersion();
     }
 }
