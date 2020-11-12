@@ -115,6 +115,7 @@ public class Composer {
         ClassComposeMetadata classComposeMetadata = getClassComposeData(aClass);
         if(classComposeMetadata.overrideDecompose) {
             Composable decompose = ((Composable) o).decompose(byteBufInputStream);
+            //noinspection ConstantConditions
             if (decompose == null)
                 throw new IOException(aClass.getName() + " overrides the decomposition process, but returns null!");
             return decompose;
