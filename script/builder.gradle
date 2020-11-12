@@ -14,7 +14,7 @@ task defineSupportedGameVersions {
             DomainObjectSet<ProjectDependency> projectDependencies = project.getConfigurations().compile.dependencies.withType ProjectDependency
             projectDependencies.forEach {
                 if(it.dependencyProject.getName() == '_common') {
-                    versions.add(project.getName())
+                    versions.add(project.gameVersions)
                 }
             }
         })
