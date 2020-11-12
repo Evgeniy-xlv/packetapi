@@ -2,13 +2,13 @@
 
 ### Briefly:
 
-* Make life easier for yourself and get rid of the need to create a handler for each packet, while maintaining OOP style and synchronization of handling
-* Register packets without the need to specify descriminators and other things
-* Callbacks. Send the request to the server and wait for the response asynchronously, and then process the result synchronously, all in one line of code
-* Control over packets. Suppress spam of packets with one annotation
-* Use the handy Sender tool, which contain a set of popular methods for sending data to and from
-* Convert Object <-> byte [] without pain
-* Work with both ForgeClient <-> ForgeServer and ForgeClient <-> BukkitAPI
+* No more handlers for each packet, keeping OOP style and processing synchronous
+* Registering packets without the need to specify descriminators and other things
+* Callbacks. Sending requests to the server and asynchronously waiting for a response, and then processing the result synchronously, all in one line of code
+* Control over packages. Suppression of spam with packets of one annotation
+* Rich functionality for sending packets in packs with filtering and black jack
+* Converting Object <-> byte[] without pain
+* Full `BukkitAPI` and `Forge` support
 * Lazy data sending without packets
 
 ## Usage examples
@@ -94,6 +94,9 @@ You can find more examples in the source code.
 ## Install
 
 **Go to [Releases](https://github.com/Evgeniy-xlv/packetapi/releases) and download one of them.**
+
+**ACHTUNG!** PacketAPI was developed for Minecraft `v1.7.10` and `v1.12.2` and works correctly there. It does not mean that it will 
+definitely fail on other versions, but you should use it at your own peril and risk.
 
 p.s. use a jar file called `packetapi-@VERSION@-no-reobf.jar` if you cannot run the game with this library from the IDE. 
 It's possible when working with `Minecraft v1.7.10`
