@@ -15,6 +15,19 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+/**
+ * This tool provides the composition process of {@link Composable}.
+ * <p>
+ * The process is that we ignore data that both logical sides already know about.
+ * For example, both sides have instances of classes, which means that there is no need to transfer
+ * metadata of classes. Cutting off all unnecessary, Composer leaves only the paths to the classes and the
+ * values of its fields. It is this data that is packed into the buffer.
+ * <p>
+ * Composer also slightly optimizes the amount of data for some types. So, for example, only its ordinal
+ * remains from the enum.
+ *
+ * @see Composable
+ * */
 public class Composer {
 
     private final Map<String, ClassComposeMetadata> classComposeMetadataMap = new HashMap<>();
@@ -51,6 +64,12 @@ public class Composer {
         classComposeAdapterMap.put(type, new ComposeAdapter<>(composition, decomposition));
     }
 
+    /**
+     * Packs {@link Composable} to the buffer.
+     * @see Composer#writeObject(Composable, ByteBufOutputStream)
+     * @see Composer#getClassComposeData(Class)
+     * @throws IOException if any exception was thrown during the composition process.
+     * */
     public <T extends Composable> void compose(T composable, ByteBufOutputStream byteBufOutputStream) throws IOException {
         if(composable == null) throw new IOException("Composable is null!");
         try {
@@ -60,6 +79,12 @@ public class Composer {
         }
     }
 
+    /**
+     * Unpacks {@link Composable} from the buffer.
+     * @see Composer#readObject(ByteBufInputStream)
+     * @see Composer#getClassComposeData(Class)
+     * @throws IOException if any exception was thrown during the composition process.
+     * */
     @Nonnull
     public Composable decompose(ByteBufInputStream byteBufInputStream) throws IOException {
         if (unsafe == null)
@@ -71,6 +96,9 @@ public class Composer {
         }
     }
 
+    /**
+     * It is a recursive method that performs the composition process.
+     * */
     @Nonnull
     private Object readObject(ByteBufInputStream byteBufInputStream) throws IOException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException, InstantiationException {
         String className = byteBufInputStream.readUTF();
@@ -174,6 +202,9 @@ public class Composer {
         return o;
     }
 
+    /**
+     * It is a recursive method that performs the decomposition process.
+     * */
     private void writeObject(Composable object, ByteBufOutputStream byteBufOutputStream) throws IOException, IllegalAccessException, NoSuchMethodException {
         byteBufOutputStream.writeUTF(object.getClass().getName());
         ClassComposeMetadata classComposeMetadata = getClassComposeData(object.getClass());
@@ -280,6 +311,11 @@ public class Composer {
         }
     }
 
+    /**
+     * Forms and gives local meta information about the content of a particular class. This is necessary to optimize
+     * the packing and unpacking processes of {@link Composable}.
+     * @see ClassComposeMetadata
+     * */
     private ClassComposeMetadata getClassComposeData(Class<?> aClass) throws NoSuchMethodException {
         String className = aClass.getName();
         ClassComposeMetadata classComposeMetadata = classComposeMetadataMap.get(className);
@@ -330,9 +366,25 @@ public class Composer {
 
     private static class ClassComposeMetadata {
 
+        /**
+         * An ordered list of class fields. Primitives are brought to the top, and objects are brought down.
+         * This approach allows to differentiate non-null objects from nullable objects.
+         * All Nullable objects will be additionally signed with a single boolean prefix.
+         * This boolean will signal if the further object is null or not.
+         * This solves the problem of writing nulls to the buffer.
+         * */
         private final List<Field> fields;
+        /**
+         * The number of fields of the primitive class types.
+         * */
         private final int primitives;
+        /**
+         * true if the class overrides {@link Composable#decompose(ByteBufInputStream)} method.
+         * */
         private final boolean overrideDecompose;
+        /**
+         * true if the class overrides {@link Composable#compose(ByteBufOutputStream)} method.
+         * */
         private final boolean overrideCompose;
 
         private ClassComposeMetadata(List<Field> fields, int primitives, boolean overrideDecompose, boolean overrideCompose) {
