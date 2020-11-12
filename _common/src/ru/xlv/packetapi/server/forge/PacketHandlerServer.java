@@ -62,11 +62,11 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
             }
         } else if(pid == -1) {
             if(PacketAPI.getCapabilityAdapter().isServerThread(Thread.currentThread())) {
-                PacketAPI.getComposableCatcherBus().post(Composable.decompose(bbis), entityPlayer);
+                PacketAPI.getComposableCatcherBus().post(PacketAPI.getComposer().decompose(bbis), entityPlayer);
             } else {
                 PacketAPI.getCapabilityAdapter().scheduleServerTaskSync(() -> {
                     try {
-                        PacketAPI.getComposableCatcherBus().post(Composable.decompose(bbis), entityPlayer);
+                        PacketAPI.getComposableCatcherBus().post(PacketAPI.getComposer().decompose(bbis), entityPlayer);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -227,7 +227,7 @@ public class PacketHandlerServer extends PacketHandlerForge implements IPacketHa
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
         try {
             byteBufOutputStream.writeInt(-1);
-            Composable.compose(composable, byteBufOutputStream);
+            PacketAPI.getComposer().compose(composable, byteBufOutputStream);
             sendPacketToPlayer(PacketAPI.DEFAULT_NET_CHANNEL_NAME, player, byteBufOutputStream);
         } catch (IOException e) {
             e.printStackTrace();

@@ -56,7 +56,7 @@ public class PacketHandlerClient extends PacketHandlerForge {
             PacketAPI.getCapabilityAdapter().scheduleTaskSync(() -> {
                 try {
                     if (pid == -1) {
-                        PacketAPI.getComposableCatcherBus().post(Composable.decompose(bbis));
+                        PacketAPI.getComposableCatcherBus().post(PacketAPI.getComposer().decompose(bbis));
                         return;
                     }
                     if (packet instanceof ICallbackOut) {
@@ -176,7 +176,7 @@ public class PacketHandlerClient extends PacketHandlerForge {
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
         try {
             byteBufOutputStream.writeInt(-1);
-            Composable.compose(composable, byteBufOutputStream);
+            PacketAPI.getComposer().compose(composable, byteBufOutputStream);
             sendPacketToServer(PacketAPI.DEFAULT_NET_CHANNEL_NAME, byteBufOutputStream);
         } catch (IOException e) {
             e.printStackTrace();

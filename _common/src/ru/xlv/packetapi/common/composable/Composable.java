@@ -3,10 +3,7 @@ package ru.xlv.packetapi.common.composable;
 import io.netty.buffer.ByteBufOutputStream;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
@@ -14,29 +11,13 @@ import java.io.Serializable;
  * <p>
  * The serializing process of {@link Composable} is easy to understand. It is based on serialization of {@link Serializable} objects in java.
  * @see Serializable to undestand what the object should look like for successful serialization.
- * @see Composable to understand how it is serializing.
+ * @see Composer to understand how the composition process works.
  * */
 public interface Composable extends Serializable {
 
-    static <T extends Composable> void compose(T composable, ByteBufOutputStream byteBufOutputStream) throws IOException {
-        if(composable == null) throw new IOException("The input composable is null!");
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteBufOutputStream);
-        objectOutputStream.writeObject(composable);
-        objectOutputStream.close();
-    }
+    default void compose(ByteBufOutputStream byteBufOutputStream) throws IOException {}
 
-    @Nonnull
-    static Composable decompose(ByteBufInputStream byteBufInputStream) throws IOException {
-        ObjectInputStream objectInputStream = new ObjectInputStream(byteBufInputStream);
-        try {
-            Object o = objectInputStream.readObject();
-            if (o instanceof Composable) {
-                return (Composable) o;
-            } else {
-                throw new IOException("Unexpected exception. Not valid object: " + o);
-            }
-        } catch (ClassNotFoundException e) {
-            throw new IOException(e);
-        }
+    default Composable decompose(ByteBufInputStream byteBufInputStream) throws IOException {
+        return null;
     }
 }

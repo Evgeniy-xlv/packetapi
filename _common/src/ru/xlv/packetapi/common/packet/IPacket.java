@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBufOutputStream;
 import ru.xlv.flex.thr.ThrBiConsumer;
 import ru.xlv.flex.thr.ThrCallable;
 import ru.xlv.flex.thr.ThrFunction;
+import ru.xlv.packetapi.PacketAPI;
 import ru.xlv.packetapi.common.composable.Composable;
 import ru.xlv.packetapi.common.util.ByteBufInputStream;
 
@@ -13,7 +14,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 public interface IPacket {
@@ -58,38 +58,60 @@ public interface IPacket {
 
     /**
      * Writes all {@link Serializable} from input {@link ArrayList} to the buffer as {@link ArrayList}.
+     * @deprecated use {@link IPacket#writeObjects(ByteBufOutputStream, Collection)} directly.
      * */
+    @Deprecated
     default <T extends Serializable> void writeObjects(@Nonnull ByteBufOutputStream byteBufOutputStream, @Nonnull ArrayList<T> arrayList) throws IOException {
-        writeObject(byteBufOutputStream, arrayList);
+        writeObjects(byteBufOutputStream, (Collection<T>) arrayList);
     }
 
     /**
      * Writes all {@link Serializable} from input {@link Collection} to the buffer as {@link ArrayList}.
      * */
     default <T extends Serializable> void writeObjects(@Nonnull ByteBufOutputStream byteBufOutputStream, @Nonnull Collection<T> collection) throws IOException {
-        writeObject(byteBufOutputStream, new ArrayList<>(collection));
+        byteBufOutputStream.writeInt(collection.size());
+        for (T t : collection) {
+            writeObject(byteBufOutputStream, t);
+        }
     }
 
     /**
      * Writes all {@link Serializable} from input array of {@link Serializable} to the buffer as {@link ArrayList}.
      * */
     default void writeObjects(@Nonnull ByteBufOutputStream byteBufOutputStream, @Nonnull Serializable... serializables) throws IOException {
-        writeObject(byteBufOutputStream, (ArrayList<Serializable>) Arrays.asList(serializables));
+        byteBufOutputStream.writeInt(serializables.length);
+        for (Serializable serializable : serializables) {
+            writeObject(byteBufOutputStream, serializable);
+        }
     }
 
     /**
      * Attempts to read {@link ArrayList} from the buffer that should contain objects of type tClass.
+     * By default, all elements will be added to the new {@link ArrayList}.
+     * @param byteBufInputStream is the buffer
+     * @param tClass is the class extending Serializable, whose elements will be read from the buffer.
      * @return read {@link ArrayList} or empty {@link ArrayList} on failure.
      * */
     @Nonnull
-    @SuppressWarnings("CastCanBeRemovedNarrowingVariableType")
     default <T extends Serializable> ArrayList<T> readObjects(@Nonnull ByteBufInputStream byteBufInputStream, @Nonnull Class<T> tClass) throws IOException {
-        ArrayList<?> arrayList = readObject(byteBufInputStream, ArrayList.class);
-        if (!arrayList.isEmpty() && arrayList.get(0).getClass().isAssignableFrom(tClass)) {
-            //noinspection unchecked
-            return (ArrayList<T>) arrayList;
+        return readObjects(byteBufInputStream, tClass, new ArrayList<>());
+    }
+
+    /**
+     * Attempts to read {@link ArrayList} from the buffer that should contain objects of type tClass.
+     * @param byteBufInputStream is the buffer
+     * @param tClass is the class extending Serializable, whose elements will be read from the buffer.
+     * @param collection is the collection to which all read elements will be added.
+     * @return read {@link ArrayList} or empty {@link ArrayList} on failure.
+     * */
+    @Nonnull
+    default <T extends Serializable, V extends Collection<T>> V readObjects(@Nonnull ByteBufInputStream byteBufInputStream, @Nonnull Class<T> tClass, @Nonnull V collection) throws IOException {
+        int length = byteBufInputStream.readInt();
+        for (int i = 0; i < length; i++) {
+            T t = readObject(byteBufInputStream, tClass);
+            collection.add(t);
         }
-        return new ArrayList<>(0);
+        return collection;
     }
 
     /**
@@ -117,7 +139,7 @@ public interface IPacket {
         } else if(serializable instanceof byte[]) {
             byteBufOutputStream.writeBytes(new String((byte[]) serializable));
         } else if(serializable instanceof Composable) {
-            Composable.compose((Composable) serializable, byteBufOutputStream);
+            PacketAPI.getComposer().compose((Composable) serializable, byteBufOutputStream);
         } else {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteBufOutputStream);
             objectOutputStream.writeObject(serializable);
@@ -150,7 +172,7 @@ public interface IPacket {
         } else if(tClass == byte[].class) {
             return (T) byteBufInputStream.readUTF().getBytes();
         } else if(Composable.class.isAssignableFrom(tClass)) {
-            return (T) Composable.decompose(byteBufInputStream);
+            return (T) PacketAPI.getComposer().decompose(byteBufInputStream);
         } else {
             try {
                 ObjectInputStream objectInputStream = new ObjectInputStream(byteBufInputStream);

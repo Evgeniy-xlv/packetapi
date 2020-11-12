@@ -70,7 +70,7 @@ public class PacketHandlerBukkit implements IPacketHandlerServer<Player, IPacket
             }
         } else if(pid == -1) {
             try {
-                PacketAPI.getComposableCatcherBus().post(Composable.decompose(bbis), player);
+                PacketAPI.getComposableCatcherBus().post(PacketAPI.getComposer().decompose(bbis), player);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -238,7 +238,7 @@ public class PacketHandlerBukkit implements IPacketHandlerServer<Player, IPacket
         ByteBufOutputStream byteBufOutputStream = new ByteBufOutputStream(Unpooled.buffer());
         try {
             byteBufOutputStream.writeInt(-1);
-            Composable.compose(composable, byteBufOutputStream);
+            PacketAPI.getComposer().compose(composable, byteBufOutputStream);
             sendPacketToPlayer(PacketAPI.DEFAULT_NET_CHANNEL_NAME, player, byteBufOutputStream);
         } catch (IOException e) {
             e.printStackTrace();

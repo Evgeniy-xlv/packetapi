@@ -3,6 +3,7 @@ package ru.xlv.packetapi;
 import ru.xlv.packetapi.capability.ICapabilityAdapter;
 import ru.xlv.packetapi.capability.VersionCheckerImpl;
 import ru.xlv.packetapi.common.composable.ComposableCatcherBus;
+import ru.xlv.packetapi.common.composable.Composer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ public class PacketAPI {
 
     private static ICapabilityAdapter capabilityAdapter;
     private static final ComposableCatcherBus COMPOSABLE_CATCHER_BUS = new ComposableCatcherBus();
+    private static final Composer COMPOSER = new Composer();
 
     public static final String NAME = "packetapi";
     public static final String VERSION = "@PACKET_API_VERSION@";
@@ -47,6 +49,10 @@ public class PacketAPI {
 
     public static ComposableCatcherBus getComposableCatcherBus() {
         return COMPOSABLE_CATCHER_BUS;
+    }
+
+    public static Composer getComposer() {
+        return COMPOSER;
     }
 
     public static int getCallbackThreadPoolSize() {

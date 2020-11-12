@@ -3,4 +3,5 @@ include(
         '1.12.2',
         '_common',
         '_minecraft',
+        '_universal_adapter',
 )

@@ -1,0 +1,49 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+
+sourceCompatibility = targetCompatibility =  '1.8'
+compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
+
+sourceSets.main.java.srcDir 'src'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
+}
+
+dependencies {
+    compileOnly group: 'org.bukkit', name: 'bukkit', version: '1.12.2-R0.1-SNAPSHOT'
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
+    compile (project(':_common')) {
+        exclude module: '_minecraft'
+    }
+}
+
+minecraft {
+    mappings channel: 'snapshot', version: '20171003-1.12'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+        server {
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+jar {
+    exclude 'ru/xlv/packetapi/example'
+}
