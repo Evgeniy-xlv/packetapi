@@ -26,14 +26,17 @@ public class PacketAPI {
 
     private PacketAPI() {}
 
-    private static void initCapabilityAdapter(String gameVersion) {
+    private static void initCapabilityAdapter(String gameVersion, boolean checkVersion) {
         if (gameVersion != null) {
             try {
                 Class<?> adapter = Class.forName("ru.xlv.packetapi.capability.CapabilityAdapter" + gameVersion.replace(".", "_"));
-                VersionCheckerImpl annotation = adapter.getAnnotation(VersionCheckerImpl.class);
-                if (annotation != null && annotation.value().newInstance().check()) {
-                    setCapabilityAdapter((ICapabilityAdapter) adapter.newInstance());
+                boolean flag = checkVersion;
+                if(!flag) {
+                    VersionCheckerImpl annotation = adapter.getAnnotation(VersionCheckerImpl.class);
+                    flag = annotation != null && annotation.value().newInstance().check();
                 }
+                if (flag)
+                    setCapabilityAdapter((ICapabilityAdapter) adapter.newInstance());
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ignored) {
             }
         }
@@ -84,6 +87,8 @@ public class PacketAPI {
 
     private static void defineCurrentMinecraftVersion() {
         String gameVersions = "Nothing.";
+        if(System.getProperty("ru.xlv.packetapi.gameVersion") != null)
+            initCapabilityAdapter(System.getProperty("ru.xlv.packetapi.gameVersion"), true);
         try {
             Enumeration<URL> resources = PacketAPI.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
             while(resources.hasMoreElements()) {
@@ -91,15 +96,12 @@ public class PacketAPI {
                 InputStream inputStream = x.openStream();
                 Manifest manifest = new Manifest(inputStream);
                 gameVersions = manifest.getMainAttributes().getValue("PacketAPI_GameVersions");
-                if (gameVersions != null) {
+                if (getCapabilityAdapter() == null && gameVersions != null) {
                     String[] gameVersions1 = gameVersions.replace("[", "").replace("]", "").split(",");
-                    for (String gameVersion : gameVersions1) {
-                        if (getCapabilityAdapter() == null) {
-                            initCapabilityAdapter(gameVersion.trim());
-                        } else {
-                            break;
-                        }
-                    }
+                    for (String gameVersion : gameVersions1)
+                        if (getCapabilityAdapter() == null)
+                            initCapabilityAdapter(gameVersion.trim(), false);
+                        else break;
                     inputStream.close();
                     break;
                 }
@@ -108,12 +110,8 @@ public class PacketAPI {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (getCapabilityAdapter() == null) {
-            initCapabilityAdapter(System.getProperty("ru.xlv.packetapi.gameVersion"));
-        }
-        if(getCapabilityAdapter() == null) {
+        if(getCapabilityAdapter() == null)
             throw new RuntimeException("The current game version isn't supported by PacketAPI. Supported game versions: " + gameVersions);
-        }
     }
 
     static {
