@@ -12,7 +12,7 @@ import java.io.Serializable;
  * the client and the server.
  * <p>
  * The serializing process of {@link Composable} is easy to understand. It is based on serialization idea
- * of {@link Serializable} objects in java, but much more compact and faster.
+ * of {@link Serializable} objects in Java, but much more compact and faster.
  * <p>
  * Important:
  * <p>
@@ -27,7 +27,7 @@ import java.io.Serializable;
  * <p>
  * - The Composable packer natively does not support anything other than primitives, strings, enums, collections,
  *      arrays, maps, and Composable themselves. However, you can expand this list without any problems by registering
- *      your adapter using {@link Composer#registerComposeAdapter(Class, Composer.IComposition, Composer.IDecomposition)}.
+ *      your adapter using {@link Composer#registerComposeAdapter(Class, IComposition, IDecomposition)}.
  *      It is important to understand that this method is not intended for the Composables themselves. If you suddenly
  *      decide to rewrite the packaging logic of your Composable from A to Z, you just need to override the
  *      corresponding methods inside your Composable.

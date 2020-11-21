@@ -1,3 +1,27 @@
+1.3.1
+- added system property ru.xlv.packetapi.gameVersion. it can be used to force set the version of the game. in this case, the default version defining process will not run;
+- fixed and improved composition process. now it generally works correctly. by default it no longer optimizes all data, but you can enable this feature using Lightweight annotation;
+- added Lightweight annotation;
+
+1.3.0
+- reworked and optimized the composition process. Composable is now more than 4 times lighter and much faster;
+- added sys property ru.xlv.packetapi.asyncPacketThreadPoolSize;
+- added sys property ru.xlv.packetapi.callbackThreadPoolSize;
+- code cleanup, improves and optimization;
+- minor fixes;
+
+1.2.4
+- the composing process is simplified;
+- removed all methods that handle the composing process from the Composable;
+- added new methods to send multiple packets/composables using s single Sender's pipeline;
+- fixes and code improves;
+
+1.2.3
+- Packet.channelName migrated to PacketSubscriber;
+- PacketSubscriber annotation is now repeatable;
+- documentation updated;
+- fixes and code improves;
+
 1.2.0
 - project reworked;
 - some classes were renamed;
