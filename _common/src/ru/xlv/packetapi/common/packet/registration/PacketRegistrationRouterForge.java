@@ -25,6 +25,14 @@ public class PacketRegistrationRouterForge extends PacketRegistrationRouter {
     protected void register(@Nonnull String channelName, @Nonnull Class<?> packetClass) {
         if (IPacket.class.isAssignableFrom(packetClass)) {
             Packet annotation = packetClass.getAnnotation(Packet.class);
+            if(annotation == null) {
+                try {
+                    throw new PacketRegistrationException("Class " + packetClass + " has no @Packet annotation!");
+                } catch (PacketRegistrationException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
             if(isServerSidePacket(packetClass)) {
                 try {
                     Constructor<?> constructor = packetClass.getConstructor();
