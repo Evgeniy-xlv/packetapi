@@ -1,11 +1,11 @@
 package ru.xlv.packetapi.example.a1_7_10.num;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.relauncher.Side;
-import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Keyboard;
 import ru.xlv.packetapi.common.packet.registration.PacketSubscriber;
 import ru.xlv.packetapi.common.sender.Sender;
@@ -28,7 +28,7 @@ public class MyTestMod {
     @Mod.EventHandler
     public void event(FMLInitializationEvent event) {
         if(event.getSide() == Side.CLIENT) {
-            MinecraftForge.EVENT_BUS.register(this);
+            FMLCommonHandler.instance().bus().register(this);
         }
     }
 

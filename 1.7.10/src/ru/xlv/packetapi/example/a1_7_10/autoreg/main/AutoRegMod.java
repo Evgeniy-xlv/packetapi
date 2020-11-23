@@ -8,7 +8,6 @@ import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import org.lwjgl.input.Keyboard;
 import ru.xlv.packetapi.common.packet.registration.PacketSubscriber;
@@ -29,7 +28,7 @@ public class AutoRegMod {
 
     @Mod.EventHandler
     public void event(FMLPostInitializationEvent event) {
-        MinecraftForge.EVENT_BUS.register(this);
+        FMLCommonHandler.instance().bus().register(this);
     }
 
     @SubscribeEvent
